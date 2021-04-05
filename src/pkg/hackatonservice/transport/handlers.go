@@ -1,34 +1,35 @@
 package transport
 
 import (
-	"database/sql"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+	"go-hackaton/src/pkg/common/transport"
+	sessions "go-hackaton/src/pkg/sessions/api"
 	"net/http"
 	"time"
 )
 
 type server struct {
+	api sessions.Api
 }
 
 func (s *server) sessionsList(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("hello"))
+	ss, err := s.api.GetSessions()
 	if err != nil {
-		log.Error(err)
+		transport.ProcessError(w, err)
+		return
 	}
+
+	transport.RenderJson(w, ss)
 }
 
-func Router(db *sql.DB) http.Handler {
-	srv := makeServer(db)
+func Router(api sessions.Api) http.Handler {
+	srv := &server{api: api}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/sessions", srv.sessionsList).Methods(http.MethodGet)
 
 	return logMiddleware(r)
-}
-
-func makeServer(db *sql.DB) *server {
-	return &server{}
 }
 
 func logMiddleware(h http.Handler) http.Handler {

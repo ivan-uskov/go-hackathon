@@ -18,7 +18,7 @@ test:
 migration:
 	echo -n "Key: "; read MIGRATION_NAME; \
 	docker run --rm -v $(shell pwd)/src/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq "$$MIGRATION_NAME"
-	sudo chown $$USER:$$USER ./migrations/*
+	sudo chown $$USER:$$USER ./src/migrations/*
 
 migrates:
 	docker run --rm -v $(shell pwd)/src/migrations:/migrations --network host migrate/migrate \

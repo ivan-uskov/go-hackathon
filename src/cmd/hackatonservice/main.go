@@ -8,6 +8,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/hackatonservice/transport"
+	sessions "go-hackaton/src/pkg/sessions/api"
 	"net/http"
 	"os"
 	"os/signal"
@@ -73,7 +74,7 @@ func waitForKillSignal(ch <-chan os.Signal) {
 func startServer(c *config) *http.Server {
 	log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
 	db := createDbConn(c)
-	router := transport.Router(db)
+	router := createRouter(db)
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: router}
 	go func() {
 		log.Fatal(srv.ListenAndServe())
@@ -81,6 +82,12 @@ func startServer(c *config) *http.Server {
 	}()
 
 	return srv
+}
+
+func createRouter(db *sql.DB) http.Handler {
+	sessionsApi := sessions.NewApi(db)
+
+	return transport.Router(sessionsApi)
 }
 
 func createDbConn(c *config) *sql.DB {
