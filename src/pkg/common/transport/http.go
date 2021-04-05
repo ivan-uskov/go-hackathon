@@ -2,8 +2,11 @@ package transport
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/common/application/errors"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -23,4 +26,26 @@ func RenderJson(w http.ResponseWriter, v interface{}) {
 		ProcessError(w, errors.InternalError)
 		return
 	}
+}
+
+func ReadJson(r *http.Request, output interface{}) error {
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		log.Error(r.Body.Close())
+	}()
+
+	err = json.Unmarshal(b, &output)
+	if err != nil {
+		err = fmt.Errorf("can't parse %s to json", b)
+	}
+
+	return err
+}
+
+func Parameter(r *http.Request, key string) (string, bool) {
+	val, found := mux.Vars(r)["ID"]
+	return val, found
 }
