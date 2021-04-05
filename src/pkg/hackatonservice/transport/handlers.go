@@ -15,6 +15,14 @@ type server struct {
 	api sessions.Api
 }
 
+type sessionResponse struct {
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Participants int       `json:"participants"`
+	Type         string    `json:"type"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 func (s *server) sessionsList(w http.ResponseWriter, _ *http.Request) {
 	ss, err := s.api.GetSessions()
 	if err != nil {
@@ -22,7 +30,18 @@ func (s *server) sessionsList(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	transport.RenderJson(w, ss)
+	sr := make([]sessionResponse, len(ss))
+	for i, so := range ss {
+		sr[i] = sessionResponse{
+			ID:           so.ID,
+			Name:         so.Name,
+			Participants: so.Participants,
+			Type:         so.Type,
+			CreatedAt:    so.CreatedAt,
+		}
+	}
+
+	transport.RenderJson(w, sr)
 }
 
 type addSessionParticipantRequest struct {
@@ -32,16 +51,16 @@ type addSessionParticipantRequest struct {
 }
 
 func (s *server) addSessionParticipant(w http.ResponseWriter, r *http.Request) {
+	id, found := transport.Parameter(r, "ID")
+	if !found {
+		transport.ProcessError(w, errors.InvalidArgumentError)
+	}
+
 	var request addSessionParticipantRequest
 	err := transport.ReadJson(r, &request)
 	if err != nil {
 		transport.ProcessError(w, err)
 		return
-	}
-
-	id, found := transport.Parameter(r, "ID")
-	if !found {
-		transport.ProcessError(w, errors.InvalidArgumentError)
 	}
 
 	err = s.api.AddSessionParticipant(input.AddSessionParticipantInput{
@@ -56,6 +75,38 @@ func (s *server) addSessionParticipant(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type participantResponse struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Score     int       `json:"score"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (s *server) getSessionParticipants(w http.ResponseWriter, r *http.Request) {
+	id, found := transport.Parameter(r, "ID")
+	if !found {
+		transport.ProcessError(w, errors.InvalidArgumentError)
+	}
+
+	pp, err := s.api.GetSessionParticipants(id)
+	if err != nil {
+		transport.ProcessError(w, err)
+		return
+	}
+
+	pr := make([]participantResponse, len(pp))
+	for i, po := range pp {
+		pr[i] = participantResponse{
+			ID:        po.ID,
+			Name:      po.Name,
+			Score:     po.Score,
+			CreatedAt: po.CreatedAt,
+		}
+	}
+
+	transport.RenderJson(w, pr)
+}
+
 func Router(api sessions.Api) http.Handler {
 	srv := &server{api: api}
 
@@ -63,6 +114,7 @@ func Router(api sessions.Api) http.Handler {
 	s := r.PathPrefix("/api/v1").Subrouter()
 	s.HandleFunc("/sessions", srv.sessionsList).Methods(http.MethodGet)
 	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participant", srv.addSessionParticipant).Methods(http.MethodPost)
+	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participants", srv.getSessionParticipants).Methods(http.MethodGet)
 
 	return logMiddleware(r)
 }
