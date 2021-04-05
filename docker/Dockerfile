@@ -21,11 +21,11 @@ RUN chmod +x ./bin/hackatonservice
 # -------- build image --------make
 FROM scratch
 
-
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser
 
 COPY --from=builder /build/bin/hackatonservice /app/bin/hackatonservice
+COPY ./templates /app/templates
 
 EXPOSE ${SERVER_PORT}
 

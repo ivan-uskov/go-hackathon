@@ -1,12 +1,14 @@
 package transport
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/common/application/errors"
 	"go-hackaton/src/pkg/common/transport"
 	sessions "go-hackaton/src/pkg/sessions/api"
 	"go-hackaton/src/pkg/sessions/api/input"
+	"html/template"
 	"net/http"
 	"time"
 )
@@ -107,10 +109,36 @@ func (s *server) getSessionParticipants(w http.ResponseWriter, r *http.Request) 
 	transport.RenderJson(w, pr)
 }
 
+var sessionParticipantsTemplate = template.Must(template.ParseFiles("/app/templates/session_participants.html"))
+
+type sessionParticipantsTemplateArgs struct {
+	LoadUrl string
+	AddUrl  string
+}
+
+func (s *server) getSessionParticipantsPage(w http.ResponseWriter, r *http.Request) {
+	id, found := transport.Parameter(r, "ID")
+	if !found {
+		transport.ProcessError(w, errors.InvalidArgumentError)
+	}
+
+	args := sessionParticipantsTemplateArgs{
+		fmt.Sprintf("/api/v1/session/%s/participants", id),
+		fmt.Sprintf("/api/v1/session/%s/participant", id),
+	}
+
+	err := sessionParticipantsTemplate.Execute(w, args)
+	if err != nil {
+		transport.ProcessError(w, err)
+	}
+}
+
 func Router(api sessions.Api) http.Handler {
 	srv := &server{api: api}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participants", srv.getSessionParticipantsPage).Methods(http.MethodGet)
+
 	s := r.PathPrefix("/api/v1").Subrouter()
 	s.HandleFunc("/sessions", srv.sessionsList).Methods(http.MethodGet)
 	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participant", srv.addSessionParticipant).Methods(http.MethodPost)
