@@ -9,6 +9,33 @@
 <body>
     <div class="container ms-auto pt-5">
         <h1>Go хакатон</h1>
+        <div class="text-end">
+            <button type="button" id="addParticipantButton" class="btn btn-success">Добавить свое приложение</button>
+        </div>
+        <form class="mt-3 mb-5 w-25 float-end visually-hidden" id="addParticipantForm">
+            <div>
+                <div class="mb-3">
+                    <label for="sessionCode" class="form-label">Код хакатона</label>
+                    <input type="text" class="form-control" id="sessionCode" placeholder="Code" required>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Ваше имя</label>
+                    <input type="text" class="form-control" id="name" placeholder="Name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="endpoint" class="form-label">Адресс сервиса</label>
+                    <input type="url" class="form-control" id="endpoint" placeholder="https://myapp.herokuapp.com" required>
+                </div>
+            </div>
+            <div>
+                <input type="submit" class="btn btn-success" id="add" value="Добавить" />
+                <button type="button" class="btn btn-link" id="cancel">Отменить</button>
+                <div class="spinner-border text-success visually-hidden" role="status" id="addParticipantPreloader">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </form>
+        <div class="clearfix"></div>
         <table class="table mt-5">
             <thead>
             <tr>
@@ -71,14 +98,76 @@
             }
         }
 
-        window.onload = () => {
-            const AddUrl = "{{ .AddUrl }}";
-            const LoadUrl = "{{ .LoadUrl }}";
+        const ADD_URL = "{{ .AddUrl }}";
+        const LOAD_URl = "{{ .LoadUrl }}";
+        const HIDDEN_CLASS = 'visually-hidden';
 
+        class AddParticipantFormController {
+            constructor(addUrl) {
+                this.addUrl = addUrl
+                this.addParticipantButton = document.getElementById('addParticipantButton');
+                this.addParticipantForm = document.getElementById('addParticipantForm');
+                this.addParticipantPreloader = document.getElementById('addParticipantPreloader');
+                this.addButton = document.getElementById('add');
+                this.cancelButton = document.getElementById('cancel');
+                this.sessionCode = document.getElementById('sessionCode');
+                this.endpoint = document.getElementById('endpoint');
+                this.name = document.getElementById('name');
+
+                this.cancelButton.onclick = this._onCancelClicked.bind(this);
+                this.addParticipantForm.onsubmit = this._onSubmit.bind(this);
+                this.addParticipantButton.onclick = this._onAddParticipantButtonClicked.bind(this);
+            }
+
+            _onAddParticipantButtonClicked() {
+                console.log(this);
+                this.addParticipantForm.classList.remove(HIDDEN_CLASS);
+                this.addParticipantButton.classList.add(HIDDEN_CLASS);
+            }
+
+            _onSubmit() {
+                this._showPreloader();
+
+                fetch(this.addUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({session_code: this.sessionCode.value, endpoint: this.endpoint.value, name: this.name.value})
+                })
+                    .then(r => {
+                        this._hidePreloader();
+                        this._onCancelClicked();
+                    });
+                return false;
+            }
+
+            _onCancelClicked() {
+                this.addParticipantForm.classList.add(HIDDEN_CLASS);
+                this.addParticipantButton.classList.remove(HIDDEN_CLASS);
+            }
+
+            _showPreloader() {
+                this.addButton.classList.add(HIDDEN_CLASS);
+                this.cancelButton.classList.add(HIDDEN_CLASS);
+                this.addParticipantPreloader.classList.remove(HIDDEN_CLASS);
+            }
+
+            _hidePreloader() {
+                this.addButton.classList.remove(HIDDEN_CLASS);
+                this.cancelButton.classList.remove(HIDDEN_CLASS);
+                this.addParticipantPreloader.classList.add(HIDDEN_CLASS);
+            }
+        }
+
+        window.onload = () => {
             const builder = new TableBuilder("tableBody");
-            const loader = new TableLoader(LoadUrl, builder.updateTable.bind(builder));
+            const loader = new TableLoader(LOAD_URl, builder.updateTable.bind(builder));
 
             loader.startLoadingCycle(3000);
+
+            new AddParticipantFormController(ADD_URL);
         }
     </script>
 </body>
