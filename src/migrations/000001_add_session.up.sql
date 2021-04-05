@@ -13,6 +13,8 @@ CREATE TABLE `session` (
 CREATE TABLE `session_participant` (
                               `participant_id` BINARY(16),
                               `session_id` BINARY(16),
+                              `name` VARCHAR(255) NOT NULL,
+                              `name_hash` BINARY(16) UNIQUE NOT NULL,
                               `endpoint` VARCHAR(255) NOT NULL,
                               `score` INTEGER NOT NULL DEFAULT 0,
                               `created_at` DATETIME NOT NULL,
