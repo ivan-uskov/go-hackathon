@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-const scoreTimeout = time.Minute * 3
+const scoreTimeout = time.Minute * 2
+const cycleTimeout = time.Second * 10
 
 type Api interface {
 	StartScoring()
@@ -42,30 +43,54 @@ func (a *api) StopScoring() {
 
 func (a *api) scoreCycle() {
 	for !a.needStopCycle() {
-		a.doScore()
+		scored := a.doScore()
+
+		if !scored {
+			select {
+			case <-time.After(cycleTimeout):
+				break
+			case <-a.stopScoringChan:
+				return
+			}
+		}
+
+		select {
+		case _, ok := <-a.stopScoringChan:
+			if ok {
+				return
+			}
+		default:
+		}
 	}
 
 	a.scoringStoppedChan <- true
 }
 
-func (a *api) doScore() {
+func (a *api) doScore() bool {
 	part, err := a.sessionsApi.GetFirstScoredParticipantBefore(time.Now().Add(-scoreTimeout))
 	if err != nil {
 		log.Error(err)
-		return
+		return false
 	}
 
 	if part == nil {
-		return
+		return false
 	}
 
 	score := a.expressionsApi.Score(part.Endpoint)
-	if score > 0 {
-		err = a.sessionsApi.UpdateSessionParticipantScore(input.UpdateSessionParticipantScoreInput{ID: part.ID, Score: score})
-		if err != nil {
-			log.Error(err)
-		}
+	if score < 0 {
+		return false
 	}
+
+	log.WithFields(log.Fields{"id": part.ID, "score": score}).Info("score participant")
+
+	err = a.sessionsApi.UpdateSessionParticipantScore(input.UpdateSessionParticipantScoreInput{ID: part.ID, Score: score})
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+
+	return true
 }
 
 func (a *api) needStopCycle() bool {
