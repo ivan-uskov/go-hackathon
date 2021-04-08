@@ -9,12 +9,16 @@ import (
 	queryImpl "go-hackaton/src/pkg/sessions/infrastructure/query"
 	"go-hackaton/src/pkg/sessions/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/model"
+	"time"
 )
 
 type Api interface {
 	GetSessions() ([]output.SessionOutput, error)
-	AddSessionParticipant(in input.AddSessionParticipantInput) error
 	GetSessionParticipants(sessionId string) ([]output.ParticipantOutput, error)
+	GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error)
+
+	AddSessionParticipant(in input.AddSessionParticipantInput) error
+	UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error
 }
 
 type api struct {
@@ -50,6 +54,31 @@ func (a *api) GetSessionParticipants(sessionId string) ([]output.ParticipantOutp
 	}
 
 	return participantsOutput, nil
+}
+
+func (a *api) GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error) {
+	participant, err := a.pqs.GetFirstScoredParticipantBefore(time)
+	if err != nil {
+		return nil, err
+	}
+
+	var participantOutput *output.ParticipantOutput
+	if participant != nil {
+		out := output.NewParticipantOutput(*participant)
+		participantOutput = &out
+	}
+
+	return participantOutput, nil
+}
+
+func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error {
+	c, err := in.Command()
+	if err != nil {
+		return err
+	}
+
+	h := command.NewUpdateParticipantScoreCommandHandler(a.partRepo)
+	return h.Handle(*c)
 }
 
 func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {

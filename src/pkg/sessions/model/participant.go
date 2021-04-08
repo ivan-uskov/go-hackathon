@@ -16,6 +16,7 @@ type Participant struct {
 }
 
 type ParticipantRepository interface {
-	Add(order Participant) error
+	Add(p Participant) error
+	Get(id uuid.UUID) (*Participant, error)
 	GetByName(name string) (*Participant, error)
 }

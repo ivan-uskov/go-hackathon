@@ -23,6 +23,7 @@ func (qs *participantQueryService) GetParticipants(sessionID string) ([]data.Par
 		"BIN_TO_UUID(sp.participant_id) AS participant_id, "+
 		"sp.name, "+
 		"sp.score, "+
+		"sp.endpoint, "+
 		"sp.created_at, "+
 		"sp.scored_at "+
 		"FROM `session_participant` sp "+
@@ -34,6 +35,37 @@ func (qs *participantQueryService) GetParticipants(sessionID string) ([]data.Par
 	}
 	defer rows.Close()
 
+	return parseParticipants(rows)
+}
+
+func (qs *participantQueryService) GetFirstScoredParticipantBefore(time time.Time) (*data.ParticipantData, error) {
+	rows, err := qs.db.Query(""+
+		"SELECT "+
+		"BIN_TO_UUID(sp.participant_id) AS participant_id, "+
+		"sp.name, "+
+		"sp.score, "+
+		"sp.endpoint, "+
+		"sp.created_at, "+
+		"sp.scored_at "+
+		"FROM `session_participant` sp "+
+		"WHERE scored_at IS NULL OR scored_at < ? "+
+		"ORDER BY scored_at ASC "+
+		"LIMIT 1", time)
+
+	if err != nil {
+		log.Error(err)
+		return nil, errors.InternalError
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		return parseParticipant(rows)
+	}
+
+	return nil, nil
+}
+
+func parseParticipants(rows *sql.Rows) ([]data.ParticipantData, error) {
 	participants := make([]data.ParticipantData, 0)
 	for rows.Next() {
 		participant, err := parseParticipant(rows)
@@ -52,10 +84,11 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 	var id string
 	var name string
 	var score int
+	var endpoint string
 	var createdAt time.Time
 	var scoredAtNullable sql.NullTime
 
-	err := r.Scan(&id, &name, &score, &createdAt, &scoredAtNullable)
+	err := r.Scan(&id, &name, &score, &endpoint, &createdAt, &scoredAtNullable)
 	if err != nil {
 		return nil, err
 	}

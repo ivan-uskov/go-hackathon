@@ -7,12 +7,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
+	expressions "go-hackaton/src/pkg/expressions/api"
 	"go-hackaton/src/pkg/hackatonservice/transport"
+	scoring "go-hackaton/src/pkg/scoringservice/api"
 	sessions "go-hackaton/src/pkg/sessions/api"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 const appID = "go-hackaton"
@@ -27,6 +31,7 @@ type config struct {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	c, err := parseConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -74,20 +79,20 @@ func waitForKillSignal(ch <-chan os.Signal) {
 func startServer(c *config) *http.Server {
 	log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
 	db := createDbConn(c)
-	router := createRouter(db)
+	sessionsApi := sessions.NewApi(db)
+	expressionsApi := expressions.NewApi()
+	scoringApi := scoring.NewApi(sessionsApi, expressionsApi)
+	scoringApi.StartScoring()
+
+	router := transport.Router(sessionsApi)
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: router}
 	go func() {
 		log.Fatal(srv.ListenAndServe())
+		scoringApi.StopScoring()
 		log.Fatal(db.Close())
 	}()
 
 	return srv
-}
-
-func createRouter(db *sql.DB) http.Handler {
-	sessionsApi := sessions.NewApi(db)
-
-	return transport.Router(sessionsApi)
 }
 
 func createDbConn(c *config) *sql.DB {
