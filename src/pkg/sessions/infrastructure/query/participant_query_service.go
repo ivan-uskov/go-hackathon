@@ -104,6 +104,7 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 		ID:        id,
 		Name:      name,
 		Score:     score,
+		Endpoint:  endpoint,
 		CreatedAt: createdAt,
 		ScoredAt:  scoredAt,
 	}, nil

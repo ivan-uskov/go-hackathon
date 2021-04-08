@@ -19,7 +19,9 @@ RUN GOARCH=amd64 GOOS=linux CGO_ENABLED=0 \
 RUN chmod +x ./bin/hackatonservice
 
 # -------- build image --------make
-FROM scratch
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser

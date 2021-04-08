@@ -11,12 +11,10 @@ import (
 	"go-hackaton/src/pkg/hackatonservice/transport"
 	scoring "go-hackaton/src/pkg/scoringservice/api"
 	sessions "go-hackaton/src/pkg/sessions/api"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 const appID = "go-hackaton"
@@ -31,7 +29,6 @@ type config struct {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	c, err := parseConfig()
 	if err != nil {
 		log.Fatal(err)
