@@ -78,10 +78,11 @@ func (s *server) addSessionParticipant(w http.ResponseWriter, r *http.Request) {
 }
 
 type participantResponse struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Score     int       `json:"score"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Score     int        `json:"score"`
+	CreatedAt time.Time  `json:"created_at"`
+	ScoredAt  *time.Time `json:"scored_at"`
 }
 
 func (s *server) getSessionParticipants(w http.ResponseWriter, r *http.Request) {
@@ -103,6 +104,7 @@ func (s *server) getSessionParticipants(w http.ResponseWriter, r *http.Request) 
 			Name:      po.Name,
 			Score:     po.Score,
 			CreatedAt: po.CreatedAt,
+			ScoredAt:  po.ScoredAt,
 		}
 	}
 

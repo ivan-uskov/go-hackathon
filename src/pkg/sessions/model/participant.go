@@ -12,6 +12,7 @@ type Participant struct {
 	Endpoint  string
 	Score     int
 	CreatedAt time.Time
+	ScoredAt  *time.Time
 }
 
 type ParticipantRepository interface {

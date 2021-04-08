@@ -42,6 +42,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Score</th>
                 <th scope="col">Created At</th>
+                <th scope="col">Scored At</th>
             </tr>
             </thead>
             <tbody id="tableBody">
@@ -65,17 +66,18 @@
             updateTable(data) {
                 let content = "";
                 data.map(item => {
-                   content += this._buildRow(item['name'], item['score'], item['created_at']);
+                   content += this._buildRow(item['name'], item['score'], item['created_at'], item['scored_at']);
                 });
 
                 this.table.innerHTML = content;
             }
 
-            _buildRow(name, score, createdAt) {
+            _buildRow(name, score, createdAt, scoredAt) {
                 return "<tr>\n" +
                     "<th scope=\"row\">" + name + "</th>\n" +
                     "<td>" + score + "</td>\n" +
                     "<td>" + createdAt + "</td>\n" +
+                    "<td>" + (scoredAt || '') + "</td>\n" +
                     "</tr>";
             }
         }

@@ -18,6 +18,7 @@ CREATE TABLE `session_participant` (
                               `endpoint` VARCHAR(255) NOT NULL,
                               `score` INTEGER NOT NULL DEFAULT 0,
                               `created_at` DATETIME NOT NULL,
+                              `scored_at` DATETIME,
                               PRIMARY KEY (participant_id),
                               FOREIGN KEY (`session_id`) REFERENCES `session` (`session_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

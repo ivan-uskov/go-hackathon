@@ -60,5 +60,6 @@ func (apc *addParticipantCommandHandler) Handle(command AddParticipantCommand) e
 		Name:      command.Name,
 		Score:     0,
 		CreatedAt: time.Now(),
+		ScoredAt:  nil,
 	})
 }

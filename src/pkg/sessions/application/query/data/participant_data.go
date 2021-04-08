@@ -7,4 +7,5 @@ type ParticipantData struct {
 	Name      string
 	Score     int
 	CreatedAt time.Time
+	ScoredAt  *time.Time
 }

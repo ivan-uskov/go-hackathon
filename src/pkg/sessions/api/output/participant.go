@@ -10,6 +10,7 @@ type ParticipantOutput struct {
 	Name      string
 	Score     int
 	CreatedAt time.Time
+	ScoredAt  *time.Time
 }
 
 func NewParticipantOutput(data data.ParticipantData) ParticipantOutput {
@@ -18,5 +19,6 @@ func NewParticipantOutput(data data.ParticipantData) ParticipantOutput {
 		data.Name,
 		data.Score,
 		data.CreatedAt,
+		data.ScoredAt,
 	}
 }

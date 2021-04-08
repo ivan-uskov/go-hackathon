@@ -21,8 +21,8 @@ func (pr *participantRepository) Add(p model.Participant) error {
 	return pr.db.Tx(func(tx *sql.Tx, ctx context.Context, closeTx func(error) error) error {
 		_, err := tx.ExecContext(
 			ctx,
-			"INSERT INTO `session_participant` (`participant_id`, `session_id`, `name`, `name_hash`, `endpoint`, `score`, `created_at`) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, UNHEX(MD5(?)), ?, ?, ?)",
-			p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt)
+			"INSERT INTO `session_participant` (`participant_id`, `session_id`, `name`, `name_hash`, `endpoint`, `score`, `created_at`, `scored_at`) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, UNHEX(MD5(?)), ?, ?, ?, ?)",
+			p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt, p.ScoredAt)
 
 		return closeTx(err)
 	})
@@ -36,7 +36,8 @@ func (pr *participantRepository) GetByName(name string) (*model.Participant, err
 		"sp.name, "+
 		"sp.endpoint, "+
 		"sp.score, "+
-		"sp.created_at "+
+		"sp.created_at, "+
+		"sp.scored_at "+
 		"FROM `session_participant` sp "+
 		"WHERE sp.name = ? ", name)
 
@@ -59,8 +60,9 @@ func parseParticipant(r *sql.Rows) (*model.Participant, error) {
 	var endpoint string
 	var score int
 	var createdAt time.Time
+	var scoredAtNullable sql.NullTime
 
-	err := r.Scan(&participantId, &sessionId, &name, &endpoint, &score, &createdAt)
+	err := r.Scan(&participantId, &sessionId, &name, &endpoint, &score, &createdAt, &scoredAtNullable)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +77,13 @@ func parseParticipant(r *sql.Rows) (*model.Participant, error) {
 		return nil, err
 	}
 
+	var scoredAt *time.Time
+	if scoredAtNullable.Valid {
+		scoredAt = &scoredAtNullable.Time
+	} else {
+		scoredAt = nil
+	}
+
 	return &model.Participant{
 		ID:        participantUid,
 		SessionID: sessionUid,
@@ -82,5 +91,6 @@ func parseParticipant(r *sql.Rows) (*model.Participant, error) {
 		Endpoint:  endpoint,
 		Score:     score,
 		CreatedAt: createdAt,
+		ScoredAt:  scoredAt,
 	}, nil
 }

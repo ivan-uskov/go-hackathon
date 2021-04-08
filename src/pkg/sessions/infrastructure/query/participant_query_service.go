@@ -23,7 +23,8 @@ func (qs *participantQueryService) GetParticipants(sessionID string) ([]data.Par
 		"BIN_TO_UUID(sp.participant_id) AS participant_id, "+
 		"sp.name, "+
 		"sp.score, "+
-		"sp.created_at "+
+		"sp.created_at, "+
+		"sp.scored_at "+
 		"FROM `session_participant` sp "+
 		"WHERE sp.session_id = UUID_TO_BIN(?) ", sessionID)
 
@@ -52,10 +53,18 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 	var name string
 	var score int
 	var createdAt time.Time
+	var scoredAtNullable sql.NullTime
 
-	err := r.Scan(&id, &name, &score, &createdAt)
+	err := r.Scan(&id, &name, &score, &createdAt, &scoredAtNullable)
 	if err != nil {
 		return nil, err
+	}
+
+	var scoredAt *time.Time
+	if scoredAtNullable.Valid {
+		scoredAt = &scoredAtNullable.Time
+	} else {
+		scoredAt = nil
 	}
 
 	return &data.ParticipantData{
@@ -63,5 +72,6 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 		Name:      name,
 		Score:     score,
 		CreatedAt: createdAt,
+		ScoredAt:  scoredAt,
 	}, nil
 }
