@@ -9,7 +9,7 @@ services:
     env_file:
       - ../.env
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
+      - ${PORT}:${PORT}
     depends_on:
       - hackatonservice_db
 

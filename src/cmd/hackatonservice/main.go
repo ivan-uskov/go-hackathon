@@ -22,7 +22,7 @@ import (
 const appID = "go-hackaton"
 
 type config struct {
-	ServerPort        string `envconfig:"server_port"`
+	ServerPort        string `envconfig:"port"`
 	DatabaseName      string `envconfig:"database_name"`
 	DatabaseAddress   string `envconfig:"database_address"`
 	DatabaseUser      string `envconfig:"database_user"`
