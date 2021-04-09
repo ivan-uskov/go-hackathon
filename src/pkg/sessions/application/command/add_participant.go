@@ -56,10 +56,18 @@ func (apc *addParticipantCommandHandler) Handle(command AddParticipantCommand) e
 	return apc.partRepo.Add(model.Participant{
 		ID:        uuid.New(),
 		SessionID: command.SessionId,
-		Endpoint:  command.Endpoint,
+		Endpoint:  removeSlashFromEnd(command.Endpoint),
 		Name:      command.Name,
 		Score:     0,
 		CreatedAt: time.Now(),
 		ScoredAt:  nil,
 	})
+}
+
+func removeSlashFromEnd(endpoint string) string {
+	if endpoint[len(endpoint)-1:] == "/" {
+		return endpoint[:len(endpoint)-1]
+	}
+
+	return endpoint
 }
