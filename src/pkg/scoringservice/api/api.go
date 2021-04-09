@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const scoreTimeout = time.Minute * 2
+const scoreTimeout = time.Minute * 1
 const cycleTimeout = time.Second * 10
 
 type Api interface {
