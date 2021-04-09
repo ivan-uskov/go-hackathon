@@ -3,15 +3,17 @@ package api
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"math"
 	"net/http"
+	"strconv"
 )
 
 const healthCheckPath = "/api/v1/health"
 const arithmeticExpressionPath = "/api/v1/arithmetic"
 
+const epsilon = 0.01
 const healthScore = 5
 
 type Api interface {
@@ -55,13 +57,19 @@ func arithmetic(host string, expr string, res float64) bool {
 	}
 
 	defer r.Body.Close()
-	b, err := ioutil.ReadAll(r.Body)
+	clientRes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Error(err)
 		return false
 	}
 
-	return string(b) == fmt.Sprintf("%v", res)
+	clientNum, err := strconv.ParseFloat(string(clientRes), 64)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+
+	return compareFloats(clientNum, res)
 }
 
 func healthCheck(host string) error {
@@ -75,4 +83,8 @@ func healthCheck(host string) error {
 	}
 
 	return nil
+}
+
+func compareFloats(left float64, right float64) bool {
+	return math.Abs(left-right) <= epsilon
 }
