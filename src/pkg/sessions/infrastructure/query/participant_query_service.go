@@ -48,7 +48,8 @@ func (qs *participantQueryService) GetFirstScoredParticipantBefore(time time.Tim
 		"sp.created_at, "+
 		"sp.scored_at "+
 		"FROM `session_participant` sp "+
-		"WHERE scored_at IS NULL OR scored_at < ? "+
+		"INNER JOIN session s ON (sp.session_id = s.session_id)"+
+		"WHERE (scored_at IS NULL OR scored_at < ?) AND s.closed_at IS NULL "+
 		"ORDER BY scored_at ASC "+
 		"LIMIT 1", time)
 
