@@ -49,6 +49,38 @@ func (qs *sessionQueryService) GetSessions() ([]data.SessionData, error) {
 	return sessions, nil
 }
 
+func (qs *sessionQueryService) GetSession(id string) (*data.SessionData, error) {
+	rows, err := qs.db.Query(""+
+		"SELECT "+
+		"BIN_TO_UUID(s.session_id) AS session_id, "+
+		"s.name, "+
+		"COUNT(DISTINCT sp.participant_id), "+
+		"s.type, "+
+		"s.created_at "+
+		"FROM `session` s "+
+		"LEFT JOIN session_participant sp ON (s.session_id = sp.session_id) "+
+		"WHERE s.session_id = UUID_TO_BIN(?)"+
+		"GROUP BY s.session_id", id)
+
+	if err != nil {
+		log.Error(err)
+		return nil, errors.InternalError
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		session, err := parseSession(rows)
+		if err != nil {
+			log.Error(err)
+			return nil, errors.InternalError
+		}
+
+		return session, nil
+	}
+
+	return nil, nil // not found
+}
+
 func parseSession(r *sql.Rows) (*data.SessionData, error) {
 	var sessionId string
 	var name string

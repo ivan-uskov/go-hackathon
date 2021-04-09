@@ -114,8 +114,9 @@ func (s *server) getSessionParticipants(w http.ResponseWriter, r *http.Request) 
 var sessionParticipantsTemplate = template.Must(template.ParseFiles("/app/templates/session_participants.html"))
 
 type sessionParticipantsTemplateArgs struct {
-	LoadUrl string
-	AddUrl  string
+	LoadUrl     string
+	AddUrl      string
+	SessionName string
 }
 
 func (s *server) getSessionParticipantsPage(w http.ResponseWriter, r *http.Request) {
@@ -124,12 +125,19 @@ func (s *server) getSessionParticipantsPage(w http.ResponseWriter, r *http.Reque
 		transport.ProcessError(w, errors.InvalidArgumentError)
 	}
 
+	session, err := s.api.GetSession(id)
+	if err != nil {
+		transport.ProcessError(w, err)
+		return
+	}
+
 	args := sessionParticipantsTemplateArgs{
 		fmt.Sprintf("/api/v1/session/%s/participants", id),
 		fmt.Sprintf("/api/v1/session/%s/participant", id),
+		session.Name,
 	}
 
-	err := sessionParticipantsTemplate.Execute(w, args)
+	err = sessionParticipantsTemplate.Execute(w, args)
 	if err != nil {
 		transport.ProcessError(w, err)
 	}

@@ -14,6 +14,7 @@ import (
 
 type Api interface {
 	GetSessions() ([]output.SessionOutput, error)
+	GetSession(id string) (*output.SessionOutput, error)
 	GetSessionParticipants(sessionId string) ([]output.ParticipantOutput, error)
 	GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error)
 
@@ -40,6 +41,17 @@ func (a *api) GetSessions() ([]output.SessionOutput, error) {
 	}
 
 	return sessionsOutput, nil
+}
+
+func (a *api) GetSession(id string) (*output.SessionOutput, error) {
+	session, err := a.sqs.GetSession(id)
+	if err != nil {
+		return nil, err
+	}
+
+	out := output.NewSessionOutput(*session)
+
+	return &out, nil
 }
 
 func (a *api) GetSessionParticipants(sessionId string) ([]output.ParticipantOutput, error) {
