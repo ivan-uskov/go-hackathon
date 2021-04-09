@@ -64,8 +64,10 @@
             }
 
             updateTable(data) {
+                const sortedData = data.sort((left, right) => left['score'] > right['score'] ? -1 : 1);
+
                 let content = "";
-                data.map(item => {
+                sortedData.forEach(item => {
                    content += this._buildRow(item['name'], item['score'], item['created_at'], item['scored_at']);
                 });
 
@@ -122,7 +124,6 @@
             }
 
             _onAddParticipantButtonClicked() {
-                console.log(this);
                 this.addParticipantForm.classList.remove(HIDDEN_CLASS);
                 this.addParticipantButton.classList.add(HIDDEN_CLASS);
             }
