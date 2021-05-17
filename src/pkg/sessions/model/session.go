@@ -16,6 +16,7 @@ type Session struct {
 }
 
 type SessionRepository interface {
-	Add(order Session) error
+	Add(s Session) error
 	Get(id uuid.UUID) (*Session, error)
+	GetBySessionCode(code string) (*Session, error)
 }

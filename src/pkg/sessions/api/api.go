@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"github.com/google/uuid"
 	"go-hackaton/src/pkg/sessions/api/input"
 	"go-hackaton/src/pkg/sessions/api/output"
 	"go-hackaton/src/pkg/sessions/application/command"
@@ -18,6 +19,7 @@ type Api interface {
 	GetSessionParticipants(sessionId string) ([]output.ParticipantOutput, error)
 	GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error)
 
+	AddSession(in input.AddSessionInput) (*uuid.UUID, error)
 	AddSessionParticipant(in input.AddSessionParticipantInput) error
 	UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error
 }
@@ -90,6 +92,16 @@ func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantSco
 	}
 
 	h := command.NewUpdateParticipantScoreCommandHandler(a.partRepo)
+	return h.Handle(*c)
+}
+
+func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
+	c, err := in.Command()
+	if err != nil {
+		return nil, err
+	}
+
+	h := command.NewAddSessionCommandHandler(a.sessRepo)
 	return h.Handle(*c)
 }
 
