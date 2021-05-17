@@ -41,8 +41,9 @@ func (apc *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, er
 		return nil, errors.SessionAlreadyExistsError
 	}
 
-	return nil, apc.sessRepo.Add(model.Session{
-		ID:        uuid.New(),
+	id := uuid.New()
+	return &id, apc.sessRepo.Add(model.Session{
+		ID:        id,
 		Code:      c.Code,
 		Name:      c.Name,
 		Type:      c.Type,
