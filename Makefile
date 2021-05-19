@@ -24,11 +24,14 @@ migrates:
 	docker run --rm -v $(shell pwd)/src/migrations:/migrations --network host migrate/migrate \
         -path=/migrations -database mysql://$(DATABASE_USER):$(DATABASE_PASSWORD)@/$(DATABASE_NAME) up
 
-build: fmt lint
+build: fmt lint test
 	docker-compose -f docker/docker-compose.yml build
 
 up:
-	docker-compose -f docker/docker-compose.yml up
+	docker-compose -f docker/docker-compose.yml up -d
 
 down:
 	docker-compose -f docker/docker-compose.yml down
+
+api_tests: up
+	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${PORT} /app/go-hackaton.postman_collection.json

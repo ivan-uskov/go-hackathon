@@ -29,6 +29,4 @@ USER appuser
 COPY --from=builder /build/bin/hackatonservice /app/bin/hackatonservice
 COPY ./templates /app/templates
 
-EXPOSE ${SERVER_PORT}
-
 CMD ["/app/bin/hackatonservice"]

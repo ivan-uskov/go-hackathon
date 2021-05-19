@@ -79,7 +79,7 @@ func healthCheck(host string) error {
 	}
 
 	if r.StatusCode != http.StatusOK {
-		return errors.New("status code is not ")
+		return errors.New("status code is not 200")
 	}
 
 	return nil
