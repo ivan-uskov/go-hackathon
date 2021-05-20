@@ -14,39 +14,47 @@ type AddSessionCommand struct {
 }
 
 type addSessionCommandHandler struct {
-	sessRepo model.SessionRepository
+	unitOfWork UnitOfWork
 }
 
 type AddSessionCommandHandler interface {
 	Handle(command AddSessionCommand) (*uuid.UUID, error)
 }
 
-func NewAddSessionCommandHandler(sessRepo model.SessionRepository) AddSessionCommandHandler {
-	return &addSessionCommandHandler{sessRepo}
+func NewAddSessionCommandHandler(unitOfWork UnitOfWork) AddSessionCommandHandler {
+	return &addSessionCommandHandler{unitOfWork}
 }
 
 func (h *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, error) {
-	if c.Code == "" {
-		return nil, errors.InvalidSessionCodeError
-	}
-	if c.Name == "" {
-		return nil, errors.InvalidSessionNameError
-	}
+	var sessionId *uuid.UUID
+	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+		sessRepo := rp.SessionRepository()
 
-	s, err := h.sessRepo.GetBySessionCode(c.Code)
-	if err != nil {
-		return nil, err
-	}
-	if s != nil {
-		return nil, errors.SessionAlreadyExistsError
-	}
+		if c.Code == "" {
+			return errors.InvalidSessionCodeError
+		}
+		if c.Name == "" {
+			return errors.InvalidSessionNameError
+		}
 
-	id := uuid.New()
-	return &id, h.sessRepo.Add(model.Session{
-		ID:        id,
-		Code:      c.Code,
-		Name:      c.Name,
-		Type:      c.Type,
-		CreatedAt: time.Now(),
+		s, err := sessRepo.GetBySessionCode(c.Code)
+		if err != nil {
+			return err
+		}
+		if s != nil {
+			return errors.SessionAlreadyExistsError
+		}
+
+		id := uuid.New()
+		sessionId = &id
+		return sessRepo.Add(model.Session{
+			ID:        id,
+			Code:      c.Code,
+			Name:      c.Name,
+			Type:      c.Type,
+			CreatedAt: time.Now(),
+		})
 	})
+
+	return sessionId, err
 }

@@ -15,52 +15,56 @@ type AddParticipantCommand struct {
 }
 
 type addParticipantCommandHandler struct {
-	sessRepo model.SessionRepository
-	partRepo model.ParticipantRepository
+	unitOfWork UnitOfWork
 }
 
 type AddParticipantCommandHandler interface {
 	Handle(command AddParticipantCommand) error
 }
 
-func NewAddParticipantCommandHandler(sessRepo model.SessionRepository, partRepo model.ParticipantRepository) AddParticipantCommandHandler {
-	return &addParticipantCommandHandler{sessRepo, partRepo}
+func NewAddParticipantCommandHandler(unitOfWork UnitOfWork) AddParticipantCommandHandler {
+	return &addParticipantCommandHandler{unitOfWork}
 }
 
 func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) error {
-	session, err := h.sessRepo.Get(command.SessionId)
-	if err != nil {
-		return err
-	}
+	return h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+		sessRepo := rp.SessionRepository()
+		partRepo := rp.ParticipantRepository()
 
-	if session == nil {
-		return errors.SessionNotExistsError
-	}
+		session, err := sessRepo.Get(command.SessionId)
+		if err != nil {
+			return err
+		}
 
-	if session.Code != command.SessionCode {
-		return errors.InvalidSessionCodeError
-	}
+		if session == nil {
+			return errors.SessionNotExistsError
+		}
 
-	if command.Name == "" {
-		return errors.ParticipantNameIsEmptyError
-	}
+		if session.Code != command.SessionCode {
+			return errors.InvalidSessionCodeError
+		}
 
-	participant, err := h.partRepo.GetByName(command.Name)
-	if err != nil {
-		return err
-	}
-	if participant != nil {
-		return errors.ParticipantAlreadyExistsError
-	}
+		if command.Name == "" {
+			return errors.ParticipantNameIsEmptyError
+		}
 
-	return h.partRepo.Add(model.Participant{
-		ID:        uuid.New(),
-		SessionID: command.SessionId,
-		Endpoint:  removeSlashFromEnd(command.Endpoint),
-		Name:      command.Name,
-		Score:     0,
-		CreatedAt: time.Now(),
-		ScoredAt:  nil,
+		participant, err := partRepo.GetByName(command.Name)
+		if err != nil {
+			return err
+		}
+		if participant != nil {
+			return errors.ParticipantAlreadyExistsError
+		}
+
+		return partRepo.Add(model.Participant{
+			ID:        uuid.New(),
+			SessionID: command.SessionId,
+			Endpoint:  removeSlashFromEnd(command.Endpoint),
+			Name:      command.Name,
+			Score:     0,
+			CreatedAt: time.Now(),
+			ScoredAt:  nil,
+		})
 	})
 }
 

@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/google/uuid"
-	"go-hackaton/src/pkg/sessions/model"
 	"time"
 )
 
@@ -16,21 +15,25 @@ type UpdateParticipantScoreCommandHandler interface {
 }
 
 type updateParticipantScoreCommandHandler struct {
-	repo model.ParticipantRepository
+	unitOfWork UnitOfWork
 }
 
-func NewUpdateParticipantScoreCommandHandler(repo model.ParticipantRepository) UpdateParticipantScoreCommandHandler {
-	return &updateParticipantScoreCommandHandler{repo}
+func NewUpdateParticipantScoreCommandHandler(unitOfWork UnitOfWork) UpdateParticipantScoreCommandHandler {
+	return &updateParticipantScoreCommandHandler{unitOfWork}
 }
 
 func (h *updateParticipantScoreCommandHandler) Handle(command UpdateParticipantScoreCommand) error {
-	part, err := h.repo.Get(command.ID)
-	if err != nil {
-		return err
-	}
+	return h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+		repo := rp.ParticipantRepository()
 
-	now := time.Now()
-	part.Score = command.Score
-	part.ScoredAt = &now
-	return h.repo.Add(*part)
+		part, err := repo.Get(command.ID)
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+		part.Score = command.Score
+		part.ScoredAt = &now
+		return repo.Add(*part)
+	})
 }

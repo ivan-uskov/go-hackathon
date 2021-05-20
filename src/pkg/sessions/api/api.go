@@ -9,7 +9,6 @@ import (
 	"go-hackaton/src/pkg/sessions/application/query"
 	queryImpl "go-hackaton/src/pkg/sessions/infrastructure/query"
 	"go-hackaton/src/pkg/sessions/infrastructure/repository"
-	"go-hackaton/src/pkg/sessions/model"
 	"time"
 )
 
@@ -26,10 +25,9 @@ type Api interface {
 }
 
 type api struct {
-	sqs      query.SessionQueryService
-	pqs      query.ParticipantQueryService
-	partRepo model.ParticipantRepository
-	sessRepo model.SessionRepository
+	sqs        query.SessionQueryService
+	pqs        query.ParticipantQueryService
+	unitOfWork command.UnitOfWork
 }
 
 func (a *api) GetSessions() ([]output.SessionOutput, error) {
@@ -92,7 +90,7 @@ func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
 		return nil, err
 	}
 
-	h := command.NewAddSessionCommandHandler(a.sessRepo)
+	h := command.NewAddSessionCommandHandler(a.unitOfWork)
 	return h.Handle(*c)
 }
 
@@ -102,7 +100,7 @@ func (a *api) CloseSession(in input.CloseSessionInput) error {
 		return err
 	}
 
-	h := command.NewCloseSessionCommandHandler(a.sessRepo)
+	h := command.NewCloseSessionCommandHandler(a.unitOfWork)
 	return h.Handle(*c)
 }
 
@@ -112,7 +110,7 @@ func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {
 		return err
 	}
 
-	h := command.NewAddParticipantCommandHandler(a.sessRepo, a.partRepo)
+	h := command.NewAddParticipantCommandHandler(a.unitOfWork)
 	return h.Handle(*c)
 }
 
@@ -122,15 +120,14 @@ func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantSco
 		return err
 	}
 
-	h := command.NewUpdateParticipantScoreCommandHandler(a.partRepo)
+	h := command.NewUpdateParticipantScoreCommandHandler(a.unitOfWork)
 	return h.Handle(*c)
 }
 
 func NewApi(db *sql.DB) Api {
 	return &api{
-		sqs:      queryImpl.NewSessionQueryService(db),
-		pqs:      queryImpl.NewParticipantQueryService(db),
-		partRepo: repository.NewParticipantRepository(db),
-		sessRepo: repository.NewSessionRepository(db),
+		sqs:        queryImpl.NewSessionQueryService(db),
+		pqs:        queryImpl.NewParticipantQueryService(db),
+		unitOfWork: repository.NewUnitOfWork(db),
 	}
 }

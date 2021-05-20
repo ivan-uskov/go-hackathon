@@ -10,21 +10,19 @@ type Database struct {
 	*sql.DB
 }
 
-func (d *Database) Tx(fn func(*sql.Tx, context.Context, func(error) error) error) error {
+func (d *Database) Tx(job func(*sql.Tx) error) error {
 	ctx := context.Background()
 	tx, err := d.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	closeTx := func(err error) error {
-		if err == nil {
-			return tx.Commit()
-		}
+	err = job(tx)
 
-		log.Error(tx.Rollback())
-		return err
+	if err == nil {
+		return tx.Commit()
 	}
 
-	return fn(tx, ctx, closeTx)
+	log.Error(tx.Rollback())
+	return err
 }

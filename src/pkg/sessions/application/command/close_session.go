@@ -3,7 +3,6 @@ package command
 import (
 	"github.com/google/uuid"
 	"go-hackaton/src/pkg/sessions/application/errors"
-	"go-hackaton/src/pkg/sessions/model"
 )
 
 type CloseSessionCommand struct {
@@ -11,27 +10,31 @@ type CloseSessionCommand struct {
 }
 
 type closeSessionCommandHandler struct {
-	sessRepo model.SessionRepository
+	unitOfWork UnitOfWork
 }
 
 type CloseSessionCommandHandler interface {
 	Handle(command CloseSessionCommand) error
 }
 
-func NewCloseSessionCommandHandler(sessRepo model.SessionRepository) CloseSessionCommandHandler {
-	return &closeSessionCommandHandler{sessRepo}
+func NewCloseSessionCommandHandler(unitOfWork UnitOfWork) CloseSessionCommandHandler {
+	return &closeSessionCommandHandler{unitOfWork}
 }
 
 func (h *closeSessionCommandHandler) Handle(c CloseSessionCommand) error {
-	s, err := h.sessRepo.Get(c.SessionID)
-	if err != nil {
-		return err
-	}
-	if s == nil {
-		return errors.SessionNotExistsError
-	}
+	return h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+		sessRepo := rp.SessionRepository()
 
-	s.Close()
+		s, err := sessRepo.Get(c.SessionID)
+		if err != nil {
+			return err
+		}
+		if s == nil {
+			return errors.SessionNotExistsError
+		}
 
-	return h.sessRepo.Add(*s)
+		s.Close()
+
+		return sessRepo.Add(*s)
+	})
 }
