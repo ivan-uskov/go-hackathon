@@ -9,6 +9,37 @@ import (
 	"time"
 )
 
+type sessionResponse struct {
+	ID           string     `json:"id"`
+	Name         string     `json:"name"`
+	Participants int        `json:"participants"`
+	Type         string     `json:"type"`
+	CreatedAt    time.Time  `json:"created_at"`
+	ClosedAt     *time.Time `json:"closed_at"`
+}
+
+func (s *server) sessionsList(w http.ResponseWriter, _ *http.Request) {
+	ss, err := s.api.GetSessions()
+	if err != nil {
+		transport.ProcessError(w, err)
+		return
+	}
+
+	sr := make([]sessionResponse, len(ss))
+	for i, so := range ss {
+		sr[i] = sessionResponse{
+			ID:           so.ID,
+			Name:         so.Name,
+			Participants: so.Participants,
+			Type:         so.Type,
+			CreatedAt:    so.CreatedAt,
+			ClosedAt:     so.ClosedAt,
+		}
+	}
+
+	transport.RenderJson(w, sr)
+}
+
 type participantResponse struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -73,33 +104,4 @@ func (s *server) getSessionParticipantsPage(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		transport.ProcessError(w, err)
 	}
-}
-
-type sessionResponse struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Participants int       `json:"participants"`
-	Type         string    `json:"type"`
-	CreatedAt    time.Time `json:"created_at"`
-}
-
-func (s *server) sessionsList(w http.ResponseWriter, _ *http.Request) {
-	ss, err := s.api.GetSessions()
-	if err != nil {
-		transport.ProcessError(w, err)
-		return
-	}
-
-	sr := make([]sessionResponse, len(ss))
-	for i, so := range ss {
-		sr[i] = sessionResponse{
-			ID:           so.ID,
-			Name:         so.Name,
-			Participants: so.Participants,
-			Type:         so.Type,
-			CreatedAt:    so.CreatedAt,
-		}
-	}
-
-	transport.RenderJson(w, sr)
 }
