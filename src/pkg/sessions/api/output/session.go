@@ -15,6 +15,7 @@ type SessionOutput struct {
 	Participants int
 	Type         string
 	CreatedAt    time.Time
+	ClosedAt     *time.Time
 }
 
 func sessionTypeToString(t int) string {
@@ -33,5 +34,6 @@ func NewSessionOutput(data data.SessionData) SessionOutput {
 		data.Participants,
 		sessionTypeToString(data.Type),
 		data.CreatedAt,
+		data.ClosedAt,
 	}
 }

@@ -25,7 +25,7 @@ func NewAddSessionCommandHandler(sessRepo model.SessionRepository) AddSessionCom
 	return &addSessionCommandHandler{sessRepo}
 }
 
-func (apc *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, error) {
+func (h *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, error) {
 	if c.Code == "" {
 		return nil, errors.InvalidSessionCodeError
 	}
@@ -33,7 +33,7 @@ func (apc *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, er
 		return nil, errors.InvalidSessionNameError
 	}
 
-	s, err := apc.sessRepo.GetBySessionCode(c.Code)
+	s, err := h.sessRepo.GetBySessionCode(c.Code)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (apc *addSessionCommandHandler) Handle(c AddSessionCommand) (*uuid.UUID, er
 	}
 
 	id := uuid.New()
-	return &id, apc.sessRepo.Add(model.Session{
+	return &id, h.sessRepo.Add(model.Session{
 		ID:        id,
 		Code:      c.Code,
 		Name:      c.Name,

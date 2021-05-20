@@ -38,6 +38,19 @@ func (s *server) addSession(w http.ResponseWriter, r *http.Request) {
 	transport.RenderJson(w, addSessionResponse{ID: id.String()})
 }
 
+func (s *server) closeSession(w http.ResponseWriter, r *http.Request) {
+	id, found := transport.Parameter(r, "ID")
+	if !found {
+		transport.ProcessError(w, errors.InvalidArgumentError)
+	}
+
+	err := s.api.CloseSession(input.CloseSessionInput{SessionID: id})
+	if err != nil {
+		transport.ProcessError(w, err)
+		return
+	}
+}
+
 type addSessionParticipantRequest struct {
 	SessionCode string `json:"session_code"`
 	Endpoint    string `json:"endpoint"`

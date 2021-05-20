@@ -10,4 +10,5 @@ type SessionData struct {
 	Participants int
 	Type         int
 	CreatedAt    time.Time
+	ClosedAt     *time.Time
 }

@@ -27,8 +27,8 @@ func NewAddParticipantCommandHandler(sessRepo model.SessionRepository, partRepo 
 	return &addParticipantCommandHandler{sessRepo, partRepo}
 }
 
-func (apc *addParticipantCommandHandler) Handle(command AddParticipantCommand) error {
-	session, err := apc.sessRepo.Get(command.SessionId)
+func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) error {
+	session, err := h.sessRepo.Get(command.SessionId)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (apc *addParticipantCommandHandler) Handle(command AddParticipantCommand) e
 		return errors.ParticipantNameIsEmptyError
 	}
 
-	participant, err := apc.partRepo.GetByName(command.Name)
+	participant, err := h.partRepo.GetByName(command.Name)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (apc *addParticipantCommandHandler) Handle(command AddParticipantCommand) e
 		return errors.ParticipantAlreadyExistsError
 	}
 
-	return apc.partRepo.Add(model.Participant{
+	return h.partRepo.Add(model.Participant{
 		ID:        uuid.New(),
 		SessionID: command.SessionId,
 		Endpoint:  removeSlashFromEnd(command.Endpoint),

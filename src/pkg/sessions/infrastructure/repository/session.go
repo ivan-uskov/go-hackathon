@@ -21,8 +21,10 @@ func (s *sessionRepository) Add(session model.Session) error {
 	return s.d.Tx(func(tx *sql.Tx, ctx context.Context, closeTx func(error) error) error {
 		_, err := tx.ExecContext(
 			ctx,
-			"INSERT INTO `session` (`session_id`, `code`, `code_hash`, `name`, `type`, `created_at`, `updated_at`) VALUES (UUID_TO_BIN(?), ?, UNHEX(MD5(?)), ?, ?, ?, ?)",
-			session.ID, session.Code, session.Code, session.Name, session.Type, session.CreatedAt, session.CreatedAt)
+			"INSERT INTO `session` (`session_id`, `code`, `code_hash`, `name`, `type`, `created_at`, `updated_at`) VALUES (UUID_TO_BIN(?), ?, UNHEX(MD5(?)), ?, ?, ?, ?)"+
+				"ON DUPLICATE KEY UPDATE `code` = ?, `code_hash` = UNHEX(MD5(?)), `name` = ?, `type` = ?, `updated_at` = NOW(), `closed_at` = ?",
+			session.ID, session.Code, session.Code, session.Name, session.Type, session.CreatedAt, session.CreatedAt,
+			session.Code, session.Code, session.Name, session.Type, session.ClosedAt)
 
 		return closeTx(err)
 	})
@@ -30,14 +32,8 @@ func (s *sessionRepository) Add(session model.Session) error {
 
 func (s *sessionRepository) Get(id uuid.UUID) (*model.Session, error) {
 	rows, err := s.d.Query(""+
-		"SELECT "+
-		"BIN_TO_UUID(s.session_id) AS session_id, "+
-		"s.code, "+
-		"s.name, "+
-		"s.type, "+
-		"s.created_at "+
-		"FROM `session` s "+
-		"WHERE s.closed_at IS NULL AND BIN_TO_UUID(s.session_id) = ? ", id)
+		getSelectSessionQuery()+
+		"WHERE BIN_TO_UUID(s.session_id) = ? ", id)
 
 	if err != nil {
 		return nil, err
@@ -53,14 +49,8 @@ func (s *sessionRepository) Get(id uuid.UUID) (*model.Session, error) {
 
 func (s *sessionRepository) GetBySessionCode(code string) (*model.Session, error) {
 	rows, err := s.d.Query(""+
-		"SELECT "+
-		"BIN_TO_UUID(s.session_id) AS session_id, "+
-		"s.code, "+
-		"s.name, "+
-		"s.type, "+
-		"s.created_at "+
-		"FROM `session` s "+
-		"WHERE s.closed_at IS NULL AND s.code = ? ", code)
+		getSelectSessionQuery()+
+		"WHERE s.code = ? ", code)
 
 	if err != nil {
 		return nil, err
@@ -74,14 +64,27 @@ func (s *sessionRepository) GetBySessionCode(code string) (*model.Session, error
 	return nil, nil // not found
 }
 
+func getSelectSessionQuery() string {
+	return "" +
+		"SELECT " +
+		"BIN_TO_UUID(s.session_id) AS session_id, " +
+		"s.code, " +
+		"s.name, " +
+		"s.type, " +
+		"s.created_at, " +
+		"s.closed_at " +
+		"FROM `session` s "
+}
+
 func parseSession(r *sql.Rows) (*model.Session, error) {
 	var sessionId string
 	var code string
 	var name string
 	var t int
 	var createdAt time.Time
+	var closedAtNullable sql.NullTime
 
-	err := r.Scan(&sessionId, &code, &name, &t, &createdAt)
+	err := r.Scan(&sessionId, &code, &name, &t, &createdAt, &closedAtNullable)
 	if err != nil {
 		return nil, err
 	}
@@ -97,5 +100,6 @@ func parseSession(r *sql.Rows) (*model.Session, error) {
 		Name:      name,
 		Type:      t,
 		CreatedAt: createdAt,
+		ClosedAt:  repository.TimePointer(closedAtNullable),
 	}, nil
 }

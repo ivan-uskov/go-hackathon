@@ -21,6 +21,7 @@ func Router(api sessions.Api) http.Handler {
 	s := r.PathPrefix("/api/v1").Subrouter()
 	s.HandleFunc("/sessions", srv.sessionsList).Methods(http.MethodGet)
 	s.HandleFunc("/session", srv.addSession).Methods(http.MethodPost)
+	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}", srv.closeSession).Methods(http.MethodDelete)
 	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participant", srv.addSessionParticipant).Methods(http.MethodPost)
 	s.HandleFunc("/session/{ID:[0-9a-zA-Z-]+}/participants", srv.getSessionParticipants).Methods(http.MethodGet)
 

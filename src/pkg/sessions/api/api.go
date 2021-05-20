@@ -20,6 +20,7 @@ type Api interface {
 	GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error)
 
 	AddSession(in input.AddSessionInput) (*uuid.UUID, error)
+	CloseSession(in input.CloseSessionInput) error
 	AddSessionParticipant(in input.AddSessionParticipantInput) error
 	UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error
 }
@@ -85,16 +86,6 @@ func (a *api) GetFirstScoredParticipantBefore(time time.Time) (*output.Participa
 	return participantOutput, nil
 }
 
-func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error {
-	c, err := in.Command()
-	if err != nil {
-		return err
-	}
-
-	h := command.NewUpdateParticipantScoreCommandHandler(a.partRepo)
-	return h.Handle(*c)
-}
-
 func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
 	c, err := in.Command()
 	if err != nil {
@@ -105,6 +96,16 @@ func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
 	return h.Handle(*c)
 }
 
+func (a *api) CloseSession(in input.CloseSessionInput) error {
+	c, err := in.Command()
+	if err != nil {
+		return err
+	}
+
+	h := command.NewCloseSessionCommandHandler(a.sessRepo)
+	return h.Handle(*c)
+}
+
 func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {
 	c, err := in.Command()
 	if err != nil {
@@ -112,6 +113,16 @@ func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {
 	}
 
 	h := command.NewAddParticipantCommandHandler(a.sessRepo, a.partRepo)
+	return h.Handle(*c)
+}
+
+func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error {
+	c, err := in.Command()
+	if err != nil {
+		return err
+	}
+
+	h := command.NewUpdateParticipantScoreCommandHandler(a.partRepo)
 	return h.Handle(*c)
 }
 

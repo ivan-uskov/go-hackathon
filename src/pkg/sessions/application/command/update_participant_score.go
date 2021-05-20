@@ -23,7 +23,7 @@ func NewUpdateParticipantScoreCommandHandler(repo model.ParticipantRepository) U
 	return &updateParticipantScoreCommandHandler{repo}
 }
 
-func (h updateParticipantScoreCommandHandler) Handle(command UpdateParticipantScoreCommand) error {
+func (h *updateParticipantScoreCommandHandler) Handle(command UpdateParticipantScoreCommand) error {
 	part, err := h.repo.Get(command.ID)
 	if err != nil {
 		return err

@@ -2,6 +2,7 @@ package input
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"go-hackaton/src/pkg/sessions/application/command"
 	"go-hackaton/src/pkg/sessions/model"
 )
@@ -24,4 +25,17 @@ func (i AddSessionInput) Command() (*command.AddSessionCommand, error) {
 		Name: i.Name,
 		Type: model.SessionTypeArithmeticExpression,
 	}, nil
+}
+
+type CloseSessionInput struct {
+	SessionID string
+}
+
+func (i CloseSessionInput) Command() (*command.CloseSessionCommand, error) {
+	sessionID, err := uuid.Parse(i.SessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &command.CloseSessionCommand{SessionID: sessionID}, nil
 }

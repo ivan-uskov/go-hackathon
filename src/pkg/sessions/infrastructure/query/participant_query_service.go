@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/common/application/errors"
+	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/application/query"
 	"go-hackaton/src/pkg/sessions/application/query/data"
 	"time"
@@ -94,19 +95,12 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 		return nil, err
 	}
 
-	var scoredAt *time.Time
-	if scoredAtNullable.Valid {
-		scoredAt = &scoredAtNullable.Time
-	} else {
-		scoredAt = nil
-	}
-
 	return &data.ParticipantData{
 		ID:        id,
 		Name:      name,
 		Score:     score,
 		Endpoint:  endpoint,
 		CreatedAt: createdAt,
-		ScoredAt:  scoredAt,
+		ScoredAt:  repository.TimePointer(scoredAtNullable),
 	}, nil
 }

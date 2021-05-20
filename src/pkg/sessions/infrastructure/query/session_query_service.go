@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/common/application/errors"
+	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/application/query"
 	"go-hackaton/src/pkg/sessions/application/query/data"
 	"time"
@@ -24,7 +25,8 @@ func (qs *sessionQueryService) GetSessions() ([]data.SessionData, error) {
 		"s.name, " +
 		"COUNT(DISTINCT sp.participant_id), " +
 		"s.type, " +
-		"s.created_at " +
+		"s.created_at, " +
+		"s.closed_at " +
 		"FROM `session` s " +
 		"LEFT JOIN session_participant sp ON (s.session_id = sp.session_id) " +
 		"GROUP BY s.session_id")
@@ -56,7 +58,8 @@ func (qs *sessionQueryService) GetSession(id string) (*data.SessionData, error) 
 		"s.name, "+
 		"COUNT(DISTINCT sp.participant_id), "+
 		"s.type, "+
-		"s.created_at "+
+		"s.created_at, "+
+		"s.closed_at "+
 		"FROM `session` s "+
 		"LEFT JOIN session_participant sp ON (s.session_id = sp.session_id) "+
 		"WHERE s.session_id = UUID_TO_BIN(?)"+
@@ -87,8 +90,9 @@ func parseSession(r *sql.Rows) (*data.SessionData, error) {
 	var participants int
 	var t int
 	var createdAt time.Time
+	var closedAtNullable sql.NullTime
 
-	err := r.Scan(&sessionId, &name, &participants, &t, &createdAt)
+	err := r.Scan(&sessionId, &name, &participants, &t, &createdAt, &closedAtNullable)
 	if err != nil {
 		return nil, err
 	}
@@ -99,5 +103,6 @@ func parseSession(r *sql.Rows) (*data.SessionData, error) {
 		Participants: participants,
 		Type:         t,
 		CreatedAt:    createdAt,
+		ClosedAt:     repository.TimePointer(closedAtNullable),
 	}, nil
 }
