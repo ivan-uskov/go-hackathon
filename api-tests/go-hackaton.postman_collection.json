@@ -192,6 +192,7 @@
 							"        pm.expect(session.hasOwnProperty('participants')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('type')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('closed_at')).to.be.true;",
 							"",
 							"        pm.expect(uuidSchema.test(session.id)).to.be.true;",
 							"        pm.expect(session.name).to.be.an(\"string\");",
@@ -358,6 +359,7 @@
 							"        pm.expect(session.hasOwnProperty('participants')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('type')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('closed_at')).to.be.true;",
 							"",
 							"        pm.expect(uuidSchema.test(session.id)).to.be.true;",
 							"        pm.expect(session.name).to.be.an(\"string\");",
@@ -514,6 +516,7 @@
 							"        pm.expect(session.hasOwnProperty('participants')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('type')).to.be.true;",
 							"        pm.expect(session.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('closed_at')).to.be.true;",
 							"",
 							"        pm.expect(uuidSchema.test(session.id)).to.be.true;",
 							"        pm.expect(session.name).to.be.an(\"string\");",
@@ -523,6 +526,114 @@
 							"",
 							"        if (session.id === pm.globals.get(\"lastCreatedSessionId\")) {",
 							"            pm.expect(session.participants).to.be.equals(0);",
+							"        }",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/sessions",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"sessions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CloseSession",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check close session\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/session/{{lastCreatedSessionId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"{{lastCreatedSessionId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Closed Session with zero participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that closed      sessions returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const session of jsonData) {",
+							"        pm.expect(session).to.be.an(\"object\");",
+							"        pm.expect(session.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('participants')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('type')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(session.hasOwnProperty('closed_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(session.id)).to.be.true;",
+							"        pm.expect(session.name).to.be.an(\"string\");",
+							"        pm.expect(session.participants).to.be.an(\"number\");",
+							"        pm.expect(session.type).to.be.equals(\"arithmetic expression\");",
+							"        pm.expect(session.created_at).to.be.an(\"string\");",
+							"",
+							"        if (session.id === pm.globals.get(\"lastCreatedSessionId\")) {",
+							"            pm.expect(session.participants).to.be.equals(0);",
+							"            pm.expect(session.closed_at).not.eq(null);",
 							"        }",
 							"    }",
 							"",
