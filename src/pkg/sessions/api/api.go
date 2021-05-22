@@ -5,10 +5,13 @@ import (
 	"github.com/google/uuid"
 	"go-hackaton/src/pkg/sessions/api/input"
 	"go-hackaton/src/pkg/sessions/api/output"
+	"go-hackaton/src/pkg/sessions/application/adapter"
 	"go-hackaton/src/pkg/sessions/application/command"
 	"go-hackaton/src/pkg/sessions/application/query"
+	adapterImpl "go-hackaton/src/pkg/sessions/infrastructure/adapter"
 	queryImpl "go-hackaton/src/pkg/sessions/infrastructure/query"
 	"go-hackaton/src/pkg/sessions/infrastructure/repository"
+	tasks "go-hackaton/src/pkg/tasks/api"
 	"time"
 )
 
@@ -28,6 +31,8 @@ type api struct {
 	sqs        query.SessionQueryService
 	pqs        query.ParticipantQueryService
 	unitOfWork command.UnitOfWork
+
+	tasks adapter.TaskAdapter
 }
 
 func (a *api) GetSessions() ([]output.SessionOutput, error) {
@@ -90,7 +95,7 @@ func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
 		return nil, err
 	}
 
-	h := command.NewAddSessionCommandHandler(a.unitOfWork)
+	h := command.NewAddSessionCommandHandler(a.unitOfWork, a.tasks)
 	return h.Handle(*c)
 }
 
@@ -124,10 +129,11 @@ func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantSco
 	return h.Handle(*c)
 }
 
-func NewApi(db *sql.DB) Api {
+func NewApi(db *sql.DB, taskApi tasks.Api) Api {
 	return &api{
 		sqs:        queryImpl.NewSessionQueryService(db),
 		pqs:        queryImpl.NewParticipantQueryService(db),
 		unitOfWork: repository.NewUnitOfWork(db),
+		tasks:      adapterImpl.NewTaskAdapter(taskApi),
 	}
 }

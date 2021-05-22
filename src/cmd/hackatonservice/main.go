@@ -11,6 +11,7 @@ import (
 	"go-hackaton/src/pkg/hackatonservice/transport"
 	scoring "go-hackaton/src/pkg/scoringservice/api"
 	sessions "go-hackaton/src/pkg/sessions/api"
+	tasks "go-hackaton/src/pkg/tasks/api"
 	"net/http"
 	"os"
 	"os/signal"
@@ -76,7 +77,7 @@ func waitForKillSignal(ch <-chan os.Signal) {
 func startServer(c *config) *http.Server {
 	log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
 	db := createDbConn(c)
-	sessionsApi := sessions.NewApi(db)
+	sessionsApi := sessions.NewApi(db, tasks.NewApi())
 	expressionsApi := expressions.NewApi()
 	scoringApi := scoring.NewApi(sessionsApi, expressionsApi)
 	scoringApi.StartScoring()

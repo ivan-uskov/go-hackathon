@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"go-hackaton/src/pkg/sessions/application/command"
-	"go-hackaton/src/pkg/sessions/model"
 )
 
 const SessionTypeExpressions = "expressions"
@@ -23,7 +22,7 @@ func (i AddSessionInput) Command() (*command.AddSessionCommand, error) {
 	return &command.AddSessionCommand{
 		Code: i.Code,
 		Name: i.Name,
-		Type: model.SessionTypeArithmeticExpression,
+		Type: i.Type,
 	}, nil
 }
 
