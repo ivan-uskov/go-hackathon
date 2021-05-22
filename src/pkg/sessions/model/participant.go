@@ -20,3 +20,9 @@ type ParticipantRepository interface {
 	Get(id uuid.UUID) (*Participant, error)
 	GetByName(name string) (*Participant, error)
 }
+
+func (p *Participant) UpdateScore(s int) {
+	now := time.Now()
+	p.Score = s
+	p.ScoredAt = &now
+}

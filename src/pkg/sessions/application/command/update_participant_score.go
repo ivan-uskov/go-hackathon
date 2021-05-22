@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/google/uuid"
-	"time"
 )
 
 type UpdateParticipantScoreCommand struct {
@@ -31,9 +30,8 @@ func (h *updateParticipantScoreCommandHandler) Handle(command UpdateParticipantS
 			return err
 		}
 
-		now := time.Now()
-		part.Score = command.Score
-		part.ScoredAt = &now
+		part.UpdateScore(command.Score)
+
 		return repo.Add(*part)
 	})
 }
