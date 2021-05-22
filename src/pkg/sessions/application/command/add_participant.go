@@ -44,8 +44,15 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 			return errors.InvalidSessionCodeError
 		}
 
+		if session.IsClose() {
+			return errors.SessionClosedError
+		}
+
 		if command.Name == "" {
 			return errors.ParticipantNameIsEmptyError
+		}
+		if command.Endpoint == "" {
+			return errors.ParticipantEndpointIsEmptyError
 		}
 
 		participant, err := partRepo.GetByName(command.Name)
