@@ -12,7 +12,7 @@ lint:
 fmt:
 	go fmt ./src/...
 
-test:
+test: fmt
 	go test ./src/...
 
 migration:

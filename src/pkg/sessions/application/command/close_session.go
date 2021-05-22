@@ -33,6 +33,10 @@ func (h *closeSessionCommandHandler) Handle(c CloseSessionCommand) error {
 			return errors.SessionNotExistsError
 		}
 
+		if s.IsClosed() {
+			return errors.SessionAlreadyClosedError
+		}
+
 		s.Close()
 
 		return sessRepo.Add(*s)

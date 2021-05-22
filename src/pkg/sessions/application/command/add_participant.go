@@ -44,7 +44,7 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 			return errors.InvalidSessionCodeError
 		}
 
-		if session.IsClose() {
+		if session.IsClosed() {
 			return errors.SessionClosedError
 		}
 

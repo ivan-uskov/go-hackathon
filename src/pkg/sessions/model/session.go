@@ -27,6 +27,6 @@ func (s *Session) Close() {
 	s.ClosedAt = &now
 }
 
-func (s *Session) IsClose() bool {
+func (s *Session) IsClosed() bool {
 	return s.ClosedAt != nil
 }
