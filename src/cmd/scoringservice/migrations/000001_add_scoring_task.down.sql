@@ -1,2 +1,1 @@
-DROP TABLE `session_participant`;
-DROP TABLE `session`;
+DROP TABLE `scoring_task`;
