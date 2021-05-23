@@ -15,14 +15,23 @@ fmt:
 test: fmt
 	go test ./src/...
 
-migration:
+hackaton_migration:
 	echo -n "Key: "; read MIGRATION_NAME; \
-	docker run --rm -v $(shell pwd)/src/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq "$$MIGRATION_NAME"
-	sudo chown $$USER:$$USER ./src/migrations/*
+	docker run --rm -v $(shell pwd)/src/cmd/hackatonservice/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq "$$MIGRATION_NAME"
+	sudo chown $$USER:$$USER ./src/cmd/hackatonservice/migrations/*
 
-migrates:
-	docker run --rm -v $(shell pwd)/src/migrations:/migrations --network host migrate/migrate \
-        -path=/migrations -database mysql://$(DATABASE_USER):$(DATABASE_PASSWORD)@/$(DATABASE_NAME) up
+hackaton_migrates:
+	docker run --rm -v $(shell pwd)/src/cmd/hackatonservice/migrations:/migrations --network host migrate/migrate \
+        -path=/migrations -database "$(HACKATON_DATABASE_DRIVER)://$(HACKATON_DATABASE_USER):$(HACKATON_DATABASE_PASSWORD)@tcp(localhost:3370)/$(HACKATON_DATABASE_NAME)" up
+
+scoring_migration:
+	echo -n "Key: "; read MIGRATION_NAME; \
+	docker run --rm -v $(shell pwd)/src/cmd/scoringservice/migrations:/migrations migrate/migrate create -ext sql -dir /migrations -seq "$$MIGRATION_NAME"
+	sudo chown $$USER:$$USER ./src/cmd/scoringservice/migrations/*
+
+scoring_migrates:
+	docker run --rm -v $(shell pwd)/src/cmd/scoringservice/migrations:/migrations --network host migrate/migrate \
+        -path=/migrations -database "$(SCORING_DATABASE_DRIVER)://$(SCORING_DATABASE_USER):$(SCORING_DATABASE_PASSWORD)@tcp(localhost:3371)/$(SCORING_DATABASE_NAME)" up
 
 build: fmt lint test
 	docker-compose -f docker/docker-compose.yml build
