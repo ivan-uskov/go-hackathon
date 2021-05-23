@@ -1,12 +1,10 @@
 package input
 
 import (
-	"errors"
 	"github.com/google/uuid"
+	"go-hackaton/src/pkg/sessions/api/errors"
 	"go-hackaton/src/pkg/sessions/application/command"
 )
-
-const SessionTypeExpressions = "expressions"
 
 type AddSessionInput struct {
 	Code string
@@ -14,16 +12,12 @@ type AddSessionInput struct {
 	Type string
 }
 
-func (i AddSessionInput) Command() (*command.AddSessionCommand, error) {
-	if i.Type != SessionTypeExpressions {
-		return nil, errors.New("invalid session type")
-	}
-
-	return &command.AddSessionCommand{
+func (i AddSessionInput) Command() command.AddSessionCommand {
+	return command.AddSessionCommand{
 		Code: i.Code,
 		Name: i.Name,
 		Type: i.Type,
-	}, nil
+	}
 }
 
 type CloseSessionInput struct {
@@ -33,7 +27,7 @@ type CloseSessionInput struct {
 func (i CloseSessionInput) Command() (*command.CloseSessionCommand, error) {
 	sessionID, err := uuid.Parse(i.SessionID)
 	if err != nil {
-		return nil, err
+		return nil, errors.InvalidSessionIdError
 	}
 
 	return &command.CloseSessionCommand{SessionID: sessionID}, nil

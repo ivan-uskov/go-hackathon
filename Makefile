@@ -47,3 +47,4 @@ logs:
 
 api_tests: up
 	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${HACKATON_PORT} /app/go-hackaton.postman_collection.json
+	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${SCORING_PORT} /app/scoringservice.postman_collection.json

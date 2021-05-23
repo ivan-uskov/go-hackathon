@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "bc20d25c-011a-4dd7-a5e5-ba84a8a87319",
+		"name": "scoringservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add scoring task",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require('uuid');",
+							"",
+							"pm.globals.set(\"lastSolutionID\", uuid.v4());",
+							"",
+							"let ids = pm.globals.get(\"lastSolutionIDS\");",
+							"if (!ids) {",
+							"    ids = [];",
+							"}",
+							"ids.push(pm.globals.get('lastSolutionID'));",
+							"pm.globals.set('lastSolutionIDS', ids);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add first task\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add second scoring task",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require('uuid');",
+							"",
+							"pm.globals.set(\"lastSolutionID\", uuid.v4());",
+							"",
+							"let ids = pm.globals.get(\"lastSolutionIDS\");",
+							"if (!ids) {",
+							"    ids = [];",
+							"}",
+							"ids.push(pm.globals.get('lastSolutionID'));",
+							"pm.globals.set('lastSolutionIDS', ids);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add second task\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add third scoring task",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require('uuid');",
+							"",
+							"pm.globals.set(\"lastSolutionID\", uuid.v4());",
+							"",
+							"let ids = pm.globals.get(\"lastSolutionIDS\");",
+							"if (!ids) {",
+							"    ids = [];",
+							"}",
+							"ids.push(pm.globals.get('lastSolutionID'));",
+							"pm.globals.set('lastSolutionIDS', ids);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add third task\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scoring Tasks",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let ids = pm.globals.get(\"lastSolutionIDS\");",
+							"pm.globals.set('lastSolutionIDS', null);",
+							"pm.globals.set('lastSolutionIDsStr', JSON.stringify(ids));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check remove tasks\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_ids\": {{lastSolutionIDsStr}}\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/tasks",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add task with invalid solution id fails",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add third task\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_id\": \"123\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scoring Tasks  With invalid id fails",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check remove tasks with invalid solution id fails\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_ids\": [\"123\"]\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/tasks",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scoring Tasks  With not existent id fails",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require('uuid');",
+							"",
+							"pm.globals.set('randomUuid', uuid.v4());"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check remove tasks with not existent solution id fails\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"solution_ids\": [\"{{randomUuid}}\"]\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/tasks",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Translate task type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check translate task type\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.hasOwnProperty('task_type')).to.be.true;",
+							"    pm.expect(jsonData.task_type).to.be.equals(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"task_type\": \"expressions\"\n}\n"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task/type/translate",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task",
+						"type",
+						"translate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Translate invalid task type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check invalid task type returns 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"task_type\": \"rats\"\n}\n"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/task/type/translate",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"task",
+						"type",
+						"translate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

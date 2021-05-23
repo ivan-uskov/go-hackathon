@@ -398,6 +398,53 @@
 			"response": []
 		},
 		{
+			"name": "CloseSession",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check close session\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/session/{{lastCreatedSessionId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"session",
+						"{{lastCreatedSessionId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Add Session",
 			"event": [
 				{

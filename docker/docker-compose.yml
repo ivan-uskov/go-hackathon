@@ -38,6 +38,8 @@ services:
       dockerfile: docker/Dockerfile.scoring
     env_file:
       - ../.env
+    ports:
+      - ${SCORING_PORT}:${SCORING_PORT}
     depends_on:
       - hackatonservice_db
 

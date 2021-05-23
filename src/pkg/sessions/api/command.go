@@ -8,20 +8,15 @@ import (
 )
 
 func (a *api) AddSession(in input.AddSessionInput) (*uuid.UUID, error) {
-	c, err := in.Command()
-	if err != nil {
-		return nil, errors.WrapError(err)
-	}
-
 	h := command.NewAddSessionCommandHandler(a.unitOfWork, a.tasks)
-	id, err := h.Handle(*c)
+	id, err := h.Handle(in.Command())
 	return id, errors.WrapError(err)
 }
 
 func (a *api) CloseSession(in input.CloseSessionInput) error {
 	c, err := in.Command()
 	if err != nil {
-		return errors.WrapError(err)
+		return err
 	}
 
 	h := command.NewCloseSessionCommandHandler(a.unitOfWork)
@@ -31,7 +26,7 @@ func (a *api) CloseSession(in input.CloseSessionInput) error {
 func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {
 	c, err := in.Command()
 	if err != nil {
-		return errors.WrapError(err)
+		return err
 	}
 
 	h := command.NewAddParticipantCommandHandler(a.unitOfWork)
@@ -41,7 +36,7 @@ func (a *api) AddSessionParticipant(in input.AddSessionParticipantInput) error {
 func (a *api) UpdateSessionParticipantScore(in input.UpdateSessionParticipantScoreInput) error {
 	c, err := in.Command()
 	if err != nil {
-		return errors.WrapError(err)
+		return err
 	}
 
 	h := command.NewUpdateParticipantScoreCommandHandler(a.unitOfWork)

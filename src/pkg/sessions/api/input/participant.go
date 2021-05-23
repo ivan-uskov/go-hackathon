@@ -1,8 +1,8 @@
 package input
 
 import (
-	"errors"
 	"github.com/google/uuid"
+	"go-hackaton/src/pkg/sessions/api/errors"
 	"go-hackaton/src/pkg/sessions/application/command"
 )
 
@@ -16,7 +16,7 @@ type AddSessionParticipantInput struct {
 func (i AddSessionParticipantInput) Command() (*command.AddParticipantCommand, error) {
 	sessionID, err := uuid.Parse(i.SessionID)
 	if err != nil {
-		return nil, err
+		return nil, errors.InvalidSessionIdError
 	}
 
 	return &command.AddParticipantCommand{
@@ -35,11 +35,7 @@ type UpdateSessionParticipantScoreInput struct {
 func (i UpdateSessionParticipantScoreInput) Command() (*command.UpdateParticipantScoreCommand, error) {
 	sessionID, err := uuid.Parse(i.ID)
 	if err != nil {
-		return nil, err
-	}
-
-	if i.Score < 0 {
-		return nil, errors.New("score can't be less than 0")
+		return nil, errors.InvalidSessionIdError
 	}
 
 	return &command.UpdateParticipantScoreCommand{

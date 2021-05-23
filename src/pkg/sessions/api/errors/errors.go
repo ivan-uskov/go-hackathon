@@ -7,9 +7,11 @@ import (
 	appErrors "go-hackaton/src/pkg/sessions/application/errors"
 )
 
+var InvalidSessionIdError = errors.New("sessions: invalid session id")
 var ParticipantAlreadyExistsError = errors.New("sessions: participant already exists")
 var ParticipantNameIsEmptyError = errors.New("sessions: participant name is empty")
 var ParticipantEndpointIsEmptyError = errors.New("sessions: participant endpoint is empty")
+var InvalidParticipantScoreError = errors.New("sessions: invalid participant score")
 var SessionNotExistsError = errors.New("sessions: session not exists")
 var SessionAlreadyExistsError = errors.New("sessions: session already exists")
 var SessionClosedError = errors.New("sessions: session closed")
@@ -29,6 +31,8 @@ func WrapError(err error) error {
 		return ParticipantNameIsEmptyError
 	case appErrors.ParticipantEndpointIsEmptyError:
 		return ParticipantEndpointIsEmptyError
+	case appErrors.InvalidParticipantScoreError:
+		return InvalidParticipantScoreError
 	case appErrors.SessionNotExistsError:
 		return SessionNotExistsError
 	case appErrors.SessionAlreadyExistsError:
