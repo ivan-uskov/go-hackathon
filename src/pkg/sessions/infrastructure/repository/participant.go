@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"github.com/google/uuid"
+	"go-hackaton/src/pkg/common/infrastructure"
 	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/model"
 	"time"
@@ -19,7 +20,7 @@ func (pr *participantRepository) Add(p model.Participant) error {
 		p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt, p.ScoredAt,
 		p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt, p.ScoredAt)
 
-	return err
+	return infrastructure.InternalError(err)
 }
 
 func (pr *participantRepository) Get(id uuid.UUID) (*model.Participant, error) {
@@ -36,9 +37,9 @@ func (pr *participantRepository) Get(id uuid.UUID) (*model.Participant, error) {
 		"WHERE sp.participant_id = UUID_TO_BIN(?) ", id)
 
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		return parseParticipant(rows)
@@ -61,9 +62,9 @@ func (pr *participantRepository) GetByName(name string) (*model.Participant, err
 		"WHERE sp.name = ? ", name)
 
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		return parseParticipant(rows)
@@ -83,17 +84,17 @@ func parseParticipant(r *sql.Rows) (*model.Participant, error) {
 
 	err := r.Scan(&participantId, &sessionId, &name, &endpoint, &score, &createdAt, &scoredAtNullable)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	participantUid, err := uuid.Parse(participantId)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	sessionUid, err := uuid.Parse(sessionId)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	return &model.Participant{

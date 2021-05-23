@@ -2,8 +2,7 @@ package query
 
 import (
 	"database/sql"
-	log "github.com/sirupsen/logrus"
-	"go-hackaton/src/pkg/common/application/errors"
+	"go-hackaton/src/pkg/common/infrastructure"
 	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/application/query"
 	"go-hackaton/src/pkg/sessions/application/query/data"
@@ -32,17 +31,15 @@ func (qs *sessionQueryService) GetSessions() ([]data.SessionData, error) {
 		"GROUP BY s.session_id")
 
 	if err != nil {
-		log.Error(err)
-		return nil, errors.InternalError
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	sessions := make([]data.SessionData, 0)
 	for rows.Next() {
 		session, err := parseSession(rows)
 		if err != nil {
-			log.Error(err)
-			return nil, errors.InternalError
+			return nil, infrastructure.InternalError(err)
 		}
 
 		sessions = append(sessions, *session)
@@ -66,16 +63,14 @@ func (qs *sessionQueryService) GetSession(id string) (*data.SessionData, error) 
 		"GROUP BY s.session_id", id)
 
 	if err != nil {
-		log.Error(err)
-		return nil, errors.InternalError
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		session, err := parseSession(rows)
 		if err != nil {
-			log.Error(err)
-			return nil, errors.InternalError
+			return nil, infrastructure.InternalError(err)
 		}
 
 		return session, nil
@@ -94,7 +89,7 @@ func parseSession(r *sql.Rows) (*data.SessionData, error) {
 
 	err := r.Scan(&sessionId, &name, &participants, &t, &createdAt, &closedAtNullable)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	return &data.SessionData{

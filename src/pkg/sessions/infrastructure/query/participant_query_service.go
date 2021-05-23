@@ -2,8 +2,7 @@ package query
 
 import (
 	"database/sql"
-	log "github.com/sirupsen/logrus"
-	"go-hackaton/src/pkg/common/application/errors"
+	"go-hackaton/src/pkg/common/infrastructure"
 	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/application/query"
 	"go-hackaton/src/pkg/sessions/application/query/data"
@@ -31,10 +30,9 @@ func (qs *participantQueryService) GetParticipants(sessionID string) ([]data.Par
 		"WHERE sp.session_id = UUID_TO_BIN(?) ", sessionID)
 
 	if err != nil {
-		log.Error(err)
-		return nil, errors.InternalError
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	return parseParticipants(rows)
 }
@@ -55,10 +53,9 @@ func (qs *participantQueryService) GetFirstScoredParticipantBefore(time time.Tim
 		"LIMIT 1", time)
 
 	if err != nil {
-		log.Error(err)
-		return nil, errors.InternalError
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		return parseParticipant(rows)
@@ -72,8 +69,7 @@ func parseParticipants(rows *sql.Rows) ([]data.ParticipantData, error) {
 	for rows.Next() {
 		participant, err := parseParticipant(rows)
 		if err != nil {
-			log.Error(err)
-			return nil, errors.InternalError
+			return nil, infrastructure.InternalError(err)
 		}
 
 		participants = append(participants, *participant)
@@ -92,7 +88,7 @@ func parseParticipant(r *sql.Rows) (*data.ParticipantData, error) {
 
 	err := r.Scan(&id, &name, &score, &endpoint, &createdAt, &scoredAtNullable)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	return &data.ParticipantData{

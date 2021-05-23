@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"github.com/google/uuid"
+	"go-hackaton/src/pkg/common/infrastructure"
 	"go-hackaton/src/pkg/common/infrastructure/repository"
 	"go-hackaton/src/pkg/sessions/model"
 	"time"
@@ -19,7 +20,7 @@ func (s *sessionRepository) Add(session model.Session) error {
 		session.ID, session.Code, session.Code, session.Name, session.Type, session.CreatedAt, session.CreatedAt,
 		session.Code, session.Code, session.Name, session.Type, session.ClosedAt)
 
-	return err
+	return infrastructure.InternalError(err)
 }
 
 func (s *sessionRepository) Get(id uuid.UUID) (*model.Session, error) {
@@ -28,9 +29,9 @@ func (s *sessionRepository) Get(id uuid.UUID) (*model.Session, error) {
 		"WHERE BIN_TO_UUID(s.session_id) = ? ", id)
 
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		return parseSession(rows)
@@ -45,9 +46,9 @@ func (s *sessionRepository) GetBySessionCode(code string) (*model.Session, error
 		"WHERE s.code = ? ", code)
 
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
-	defer rows.Close()
+	defer infrastructure.CloseRows(rows)
 
 	if rows.Next() {
 		return parseSession(rows)
@@ -78,12 +79,12 @@ func parseSession(r *sql.Rows) (*model.Session, error) {
 
 	err := r.Scan(&sessionId, &code, &name, &t, &createdAt, &closedAtNullable)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	sessionUid, err := uuid.Parse(sessionId)
 	if err != nil {
-		return nil, err
+		return nil, infrastructure.InternalError(err)
 	}
 
 	return &model.Session{
