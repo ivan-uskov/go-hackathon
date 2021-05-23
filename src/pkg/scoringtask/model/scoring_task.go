@@ -33,3 +33,7 @@ func (st *ScoringTask) Delete() {
 	now := time.Now()
 	st.DeletedAt = &now
 }
+
+func (st *ScoringTask) IsDeleted() bool {
+	return st.DeletedAt != nil
+}
