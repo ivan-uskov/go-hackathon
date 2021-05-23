@@ -1,6 +1,7 @@
 package api
 
 import (
+	"go-hackaton/src/pkg/sessions/api/errors"
 	"go-hackaton/src/pkg/sessions/api/output"
 	"time"
 )
@@ -8,7 +9,7 @@ import (
 func (a *api) GetSessions() ([]output.SessionOutput, error) {
 	sessions, err := a.sqs.GetSessions()
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapError(err)
 	}
 
 	sessionsOutput := make([]output.SessionOutput, len(sessions))
@@ -22,18 +23,22 @@ func (a *api) GetSessions() ([]output.SessionOutput, error) {
 func (a *api) GetSession(id string) (*output.SessionOutput, error) {
 	session, err := a.sqs.GetSession(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapError(err)
 	}
 
-	out := output.NewSessionOutput(*session)
+	var sessionOutput *output.SessionOutput
+	if session != nil {
+		out := output.NewSessionOutput(*session)
+		sessionOutput = &out
+	}
 
-	return &out, nil
+	return sessionOutput, nil
 }
 
 func (a *api) GetSessionParticipants(sessionId string) ([]output.ParticipantOutput, error) {
 	participants, err := a.pqs.GetParticipants(sessionId)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapError(err)
 	}
 
 	participantsOutput := make([]output.ParticipantOutput, len(participants))
@@ -47,7 +52,7 @@ func (a *api) GetSessionParticipants(sessionId string) ([]output.ParticipantOutp
 func (a *api) GetFirstScoredParticipantBefore(time time.Time) (*output.ParticipantOutput, error) {
 	participant, err := a.pqs.GetFirstScoredParticipantBefore(time)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapError(err)
 	}
 
 	var participantOutput *output.ParticipantOutput
