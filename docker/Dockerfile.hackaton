@@ -29,4 +29,6 @@ USER appuser
 COPY --from=builder /build/bin/hackatonservice /app/bin/hackatonservice
 COPY ./templates /app/templates
 
+WORKDIR /app
+
 CMD ["/app/bin/hackatonservice"]
