@@ -69,7 +69,6 @@ func (a *api) scoreCycle() {
 func (a *api) doScore() bool {
 	part, err := a.sessionsApi.GetFirstScoredParticipantBefore(time.Now().Add(-scoreTimeout))
 	if err != nil {
-		log.Error(err)
 		return false
 	}
 
@@ -85,12 +84,8 @@ func (a *api) doScore() bool {
 	log.WithFields(log.Fields{"id": part.ID, "score": score}).Info("score participant")
 
 	err = a.sessionsApi.UpdateSessionParticipantScore(input.UpdateSessionParticipantScoreInput{ID: part.ID, Score: score})
-	if err != nil {
-		log.Error(err)
-		return false
-	}
 
-	return true
+	return err == nil
 }
 
 func (a *api) needStopCycle() bool {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	log "github.com/sirupsen/logrus"
+	"go-hackaton/src/pkg/common/transport"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -20,8 +21,7 @@ type Api interface {
 	Score(url string) int
 }
 
-type api struct {
-}
+type api struct{}
 
 func NewApi() Api {
 	return &api{}
@@ -30,7 +30,7 @@ func NewApi() Api {
 func (a *api) Score(url string) int {
 	err := healthCheck(url)
 	if err != nil {
-		log.Error(err)
+		log.Debug(err)
 		return 0
 	}
 
@@ -48,7 +48,7 @@ func (a *api) Score(url string) int {
 func arithmetic(host string, expr string, res float64) bool {
 	r, err := http.Post(host+arithmeticExpressionPath, "text/plain", bytes.NewBuffer([]byte(expr)))
 	if err != nil {
-		log.Error(err)
+		log.Debug(err)
 		return false
 	}
 
@@ -56,16 +56,16 @@ func arithmetic(host string, expr string, res float64) bool {
 		return false
 	}
 
-	defer r.Body.Close()
+	defer transport.CloseBody(r.Body)
 	clientRes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Error(err)
+		log.Debug(err)
 		return false
 	}
 
 	clientNum, err := strconv.ParseFloat(string(clientRes), 64)
 	if err != nil {
-		log.Error(err)
+		log.Debug(err)
 		return false
 	}
 

@@ -20,7 +20,11 @@ func (pr *participantRepository) Add(p model.Participant) error {
 		p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt, p.ScoredAt,
 		p.ID, p.SessionID, p.Name, p.Name, p.Endpoint, p.Score, p.CreatedAt, p.ScoredAt)
 
-	return infrastructure.InternalError(err)
+	if err != nil {
+		err = infrastructure.InternalError(err)
+	}
+
+	return err
 }
 
 func (pr *participantRepository) Get(id uuid.UUID) (*model.Participant, error) {

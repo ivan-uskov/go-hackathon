@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go-hackaton/src/pkg/common/application/errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -33,9 +34,7 @@ func ReadJson(r *http.Request, output interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		log.Error(r.Body.Close())
-	}()
+	defer CloseBody(r.Body)
 
 	err = json.Unmarshal(b, &output)
 	if err != nil {
@@ -46,6 +45,13 @@ func ReadJson(r *http.Request, output interface{}) error {
 }
 
 func Parameter(r *http.Request, key string) (string, bool) {
-	val, found := mux.Vars(r)["ID"]
+	val, found := mux.Vars(r)[key]
 	return val, found
+}
+
+func CloseBody(body io.ReadCloser) {
+	err := body.Close()
+	if err != nil {
+		log.Error()
+	}
 }

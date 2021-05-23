@@ -33,5 +33,8 @@ up:
 down:
 	docker-compose -f docker/docker-compose.yml down
 
+logs:
+	docker-compose -f docker/docker-compose.yml logs
+
 api_tests: up
 	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${PORT} /app/go-hackaton.postman_collection.json

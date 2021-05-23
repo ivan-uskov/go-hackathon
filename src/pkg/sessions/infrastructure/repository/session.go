@@ -20,7 +20,11 @@ func (s *sessionRepository) Add(session model.Session) error {
 		session.ID, session.Code, session.Code, session.Name, session.Type, session.CreatedAt, session.CreatedAt,
 		session.Code, session.Code, session.Name, session.Type, session.ClosedAt)
 
-	return infrastructure.InternalError(err)
+	if err != nil {
+		err = infrastructure.InternalError(err)
+	}
+
+	return err
 }
 
 func (s *sessionRepository) Get(id uuid.UUID) (*model.Session, error) {

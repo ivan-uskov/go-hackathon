@@ -2,6 +2,7 @@ package errors
 
 import (
 	"errors"
+	log "github.com/sirupsen/logrus"
 	commonErrors "go-hackaton/src/pkg/common/application/errors"
 	appErrors "go-hackaton/src/pkg/sessions/application/errors"
 )
@@ -42,7 +43,10 @@ func WrapError(err error) error {
 		return InvalidSessionNameError
 	case appErrors.InvalidTaskTypeError:
 		return InvalidTaskTypeError
+	case commonErrors.InternalError:
+		return InternalError
 	default:
+		log.Error(err)
 		return InternalError
 	}
 }
