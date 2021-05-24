@@ -1,0 +1,713 @@
+{
+	"info": {
+		"_postman_id": "743f1f44-aa51-453c-8869-042963045536",
+		"name": "hackathonservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add Hackathon",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that it returns hackathon id\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"object\");",
+							"    pm.expect(jsonData.hasOwnProperty('id')).to.be.true;",
+							"    pm.expect(uuidSchema.test(jsonData.id)).to.be.true;",
+							"",
+							"    pm.globals.set(\"lastCreatedHackathonId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let random = +new Date();",
+							"",
+							"pm.globals.set(\"lastCreatedHackathonCode\", `ispring-${random}`);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"iSpring code hackathon\",\n    \"type\": \"expressions\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Participant",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let random = +new Date();",
+							"",
+							"pm.globals.set(\"randomName\", `Ivan-${random}`);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add first participant\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"hackathon_code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participant",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}",
+						"participant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "One Participant",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that particpants returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const particpant of jsonData) {",
+							"        pm.expect(particpant).to.be.an(\"object\");",
+							"        pm.expect(particpant.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('score')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('scored_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(particpant.id)).to.be.true;",
+							"        pm.expect(particpant.name).to.be.an(\"string\");",
+							"        pm.expect(particpant.score).to.be.an(\"number\");",
+							"        pm.expect(particpant.score >= 0).to.be.true;",
+							"        pm.expect(particpant.created_at).to.be.an(\"string\");",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.equals(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participants",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}",
+						"participants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hackathon with one participant",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that hackathons returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const hackathon of jsonData) {",
+							"        pm.expect(hackathon).to.be.an(\"object\");",
+							"        pm.expect(hackathon.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('participants')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('type')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('closed_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(hackathon.id)).to.be.true;",
+							"        pm.expect(hackathon.name).to.be.an(\"string\");",
+							"        pm.expect(hackathon.participants).to.be.an(\"number\");",
+							"        pm.expect(hackathon.type).to.be.equals(\"arithmetic expression\");",
+							"        pm.expect(hackathon.created_at).to.be.an(\"string\");",
+							"",
+							"        if (hackathon.id === pm.globals.get(\"lastCreatedHackathonId\")) {",
+							"            pm.expect(hackathon.participants).to.be.equals(1);",
+							"        }",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathons",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Second Participant",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let random = +new Date();",
+							"",
+							"pm.globals.set(\"randomName\", `Ivan-${random}`);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check add first participant\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"hackathon_code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participant",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}",
+						"participant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Two Participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that particpants returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const particpant of jsonData) {",
+							"        pm.expect(particpant).to.be.an(\"object\");",
+							"        pm.expect(particpant.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('score')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(particpant.hasOwnProperty('scored_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(particpant.id)).to.be.true;",
+							"        pm.expect(particpant.name).to.be.an(\"string\");",
+							"        pm.expect(particpant.score).to.be.an(\"number\");",
+							"        pm.expect(particpant.score >= 0).to.be.true;",
+							"        pm.expect(particpant.created_at).to.be.an(\"string\");",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.equals(2);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participants",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}",
+						"participants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hackathon with two participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that hackathons returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const hackathon of jsonData) {",
+							"        pm.expect(hackathon).to.be.an(\"object\");",
+							"        pm.expect(hackathon.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('participants')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('type')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('closed_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(hackathon.id)).to.be.true;",
+							"        pm.expect(hackathon.name).to.be.an(\"string\");",
+							"        pm.expect(hackathon.participants).to.be.an(\"number\");",
+							"        pm.expect(hackathon.type).to.be.equals(\"arithmetic expression\");",
+							"        pm.expect(hackathon.created_at).to.be.an(\"string\");",
+							"",
+							"        if (hackathon.id === pm.globals.get(\"lastCreatedHackathonId\")) {",
+							"            pm.expect(hackathon.participants).to.be.equals(2);",
+							"        }",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathons",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CloseHackathon",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check close hackathon\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Hackathon",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that it returns hackathon id\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"object\");",
+							"    pm.expect(jsonData.hasOwnProperty('id')).to.be.true;",
+							"    pm.expect(uuidSchema.test(jsonData.id)).to.be.true;",
+							"",
+							"    pm.globals.set(\"lastCreatedHackathonId\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let random = +new Date();",
+							"",
+							"pm.globals.set(\"lastCreatedHackathonCode\", `ispring-${random}`);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"iSpring code hackathon\",\n    \"type\": \"expressions\"\n}"
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Zero Participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check that particpants returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    pm.expect(jsonData.length).to.be.equals(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participants",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}",
+						"participants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hackathon with zero participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that hackathons returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const hackathon of jsonData) {",
+							"        pm.expect(hackathon).to.be.an(\"object\");",
+							"        pm.expect(hackathon.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('participants')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('type')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('closed_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(hackathon.id)).to.be.true;",
+							"        pm.expect(hackathon.name).to.be.an(\"string\");",
+							"        pm.expect(hackathon.participants).to.be.an(\"number\");",
+							"        pm.expect(hackathon.type).to.be.equals(\"arithmetic expression\");",
+							"        pm.expect(hackathon.created_at).to.be.an(\"string\");",
+							"",
+							"        if (hackathon.id === pm.globals.get(\"lastCreatedHackathonId\")) {",
+							"            pm.expect(hackathon.participants).to.be.equals(0);",
+							"        }",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathons",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CloseHackathon",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check close hackathon\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathon",
+						"{{lastCreatedHackathonId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Closed Hackathon with zero participants",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const uuidSchema = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;",
+							"",
+							"",
+							"pm.test(\"Check that closed      hackathons returned\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an(\"array\");",
+							"    for (const hackathon of jsonData) {",
+							"        pm.expect(hackathon).to.be.an(\"object\");",
+							"        pm.expect(hackathon.hasOwnProperty('id')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('name')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('participants')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('type')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('created_at')).to.be.true;",
+							"        pm.expect(hackathon.hasOwnProperty('closed_at')).to.be.true;",
+							"",
+							"        pm.expect(uuidSchema.test(hackathon.id)).to.be.true;",
+							"        pm.expect(hackathon.name).to.be.an(\"string\");",
+							"        pm.expect(hackathon.participants).to.be.an(\"number\");",
+							"        pm.expect(hackathon.type).to.be.equals(\"arithmetic expression\");",
+							"        pm.expect(hackathon.created_at).to.be.an(\"string\");",
+							"",
+							"        if (hackathon.id === pm.globals.get(\"lastCreatedHackathonId\")) {",
+							"            pm.expect(hackathon.participants).to.be.equals(0);",
+							"            pm.expect(hackathon.closed_at).not.eq(null);",
+							"        }",
+							"    }",
+							"",
+							"    pm.expect(jsonData.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api/v1/hackathons",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"hackathons"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

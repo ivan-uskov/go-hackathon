@@ -1,47 +1,47 @@
 version: '3'
 
 services:
-  hackatonservice:
-    container_name: hackatonservice
+  hackathonwebservice:
+    container_name: hackathonwebservice
     build:
       context: ../
-      dockerfile: docker/Dockerfile.hackaton
+      dockerfile: docker/Dockerfile.hackathonwebservice
     env_file:
       - ../.env
     ports:
-      - ${HACKATON_PORT}:${HACKATON_PORT}
+      - ${HACKATHON_PORT}:${HACKATHON_PORT}
     depends_on:
-      - hackatonservice_db
-      - scoringservice
+      - hackathonservice_db
+      - scoringwebservice
 
-  hackatonservice_db:
+  hackathonservice_db:
     image: mysql:8.0
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', "--init-connect='SET NAMES utf8mb4;'"]
-    container_name: hackatonservice_db
+    container_name: hackathonservice_db
     restart: always
     env_file:
       - ../.env
     environment:
-      MYSQL_DATABASE: ${HACKATON_DATABASE_NAME}
-      MYSQL_USER: ${HACKATON_DATABASE_USER}
-      MYSQL_PASSWORD: ${HACKATON_DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${HACKATHON_DATABASE_NAME}
+      MYSQL_USER: ${HACKATHON_DATABASE_USER}
+      MYSQL_PASSWORD: ${HACKATHON_DATABASE_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
     ports:
       - 3370:3306
     volumes:
-      - ../../var/hackatonservice/database:/var/lib/mysql
+      - ../../var/hackathonservice/database:/var/lib/mysql
 
-  scoringservice:
-    container_name: scoringservice
+  scoringwebservice:
+    container_name: scoringwebservice
     build:
       context: ../
-      dockerfile: docker/Dockerfile.scoring
+      dockerfile: docker/Dockerfile.scoringwebservice
     env_file:
       - ../.env
     ports:
       - ${SCORING_PORT}:${SCORING_PORT}
     depends_on:
-      - hackatonservice_db
+      - scoringservice_db
 
   scoringservice_db:
     image: mysql:8.0

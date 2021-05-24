@@ -1,4 +1,4 @@
-module go-hackaton
+module go-hackathon
 
 go 1.16
 // +heroku goVersion 1.16
