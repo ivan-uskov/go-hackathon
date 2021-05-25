@@ -2,7 +2,7 @@ package transport
 
 import (
 	"github.com/gorilla/mux"
-	"go-hackathon/src/common/transport"
+	"go-hackathon/src/common/cmd"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
 	"net/http"
 )
@@ -24,5 +24,5 @@ func Router(api api.Api) http.Handler {
 	s.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}/participant", srv.addHackathonParticipant).Methods(http.MethodPost)
 	s.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}/participants", srv.getHackathonParticipants).Methods(http.MethodGet)
 
-	return transport.LogMiddleware(r)
+	return cmd.LogMiddleware(r)
 }

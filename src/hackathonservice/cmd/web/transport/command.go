@@ -2,7 +2,7 @@ package transport
 
 import (
 	"go-hackathon/src/common/application/errors"
-	"go-hackathon/src/common/transport"
+	"go-hackathon/src/common/cmd/transport"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/input"
 	"net/http"
 )

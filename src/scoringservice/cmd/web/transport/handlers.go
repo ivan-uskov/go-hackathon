@@ -3,7 +3,8 @@ package transport
 import (
 	"errors"
 	"github.com/gorilla/mux"
-	"go-hackathon/src/common/transport"
+	"go-hackathon/src/common/cmd"
+	"go-hackathon/src/common/cmd/transport"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/input"
 	"net/http"
@@ -94,5 +95,5 @@ func Router(tasksApi api.Api) http.Handler {
 	s.HandleFunc("/tasks", srv.removeTasks).Methods(http.MethodDelete)
 	s.HandleFunc("/task/type/translate", srv.translateTaskType).Methods(http.MethodPost)
 
-	return transport.LogMiddleware(r)
+	return cmd.LogMiddleware(r)
 }
