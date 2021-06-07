@@ -50,5 +50,6 @@ api_tests: up
 	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${SCORING_PORT} /app/scoringservice.postman_collection.json
 
 proto:
-	docker run --rm -v "$(shell pwd)/api:/app" ivanuskov/go-protobuf-builder hackathon.proto
-	sudo chown $$USER:$$USER ./*
+	docker run --rm -v "$(shell pwd)/api/hackathonservice:/app" ivanuskov/go-protobuf-builder *.proto
+	docker run --rm -v "$(shell pwd)/api/scoringservice:/app" ivanuskov/go-protobuf-builder *.proto
+	sudo chown $$USER:$$USER -R ./api

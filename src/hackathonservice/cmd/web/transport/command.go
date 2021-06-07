@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
-	hackathon "go-hackathon/api"
+	hackathon "go-hackathon/api/hackathonservice"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/input"
 )
 

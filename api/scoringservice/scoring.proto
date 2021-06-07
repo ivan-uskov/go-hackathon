@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+package hackathon;
+option go_package = "./;scoring";
+
+service ScoringService {
+  rpc AddTask (AddTaskRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/task"
+      body: "*"
+    };
+  }
+
+  rpc RemoveTasks (RemoveTasksRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/tasks"
+    };
+  }
+
+  rpc TranslateTaskType (TranslateTaskTypeRequest) returns (TranslateTaskTypeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/tasks"
+      body: "*"
+    };
+  }
+}
+
+message AddTaskRequest {
+  string SolutionID = 1;
+  int32 TaskType = 2;
+  string Endpoint = 3;
+}
+
+message RemoveTasksRequest {
+  repeated string SolutionIDs = 1;
+}
+
+message TranslateTaskTypeRequest {
+  string TaskType = 1;
+}
+
+message TranslateTaskTypeResponse {
+  int32 TaskType = 1;
+}

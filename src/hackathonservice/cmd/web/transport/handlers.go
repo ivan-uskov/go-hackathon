@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	log "github.com/sirupsen/logrus"
-	"go-hackathon/api"
+	hackathon "go-hackathon/api/hackathonservice"
 	"go-hackathon/src/common/cmd"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
 	"net/http"
