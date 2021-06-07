@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+package hackathon;
+option go_package = "./;hackathon";
+
+service HackathonService {
+  // command
+  rpc AddHackathon (AddHackathonRequest) returns (AddHackathonResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/hackathon"
+      body: "*"
+    };
+  }
+  rpc CloseHackathon (CloseHackathonRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/hackathon/{ID}"
+    };
+  }
+  rpc AddHackathonParticipant (AddHackathonParticipantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/hackathon/{ID}/participant"
+      body: "*"
+    };
+  }
+
+  // query
+  rpc GetHackathons (google.protobuf.Empty) returns (HackathonsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/hackathons"
+    };
+  }
+  rpc GetHackathonParticipants (HackathonParticipantsRequest) returns (HackathonParticipantsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/hackathon/{ID}/participants"
+    };
+  }
+}
+
+message AddHackathonRequest {
+  string Code = 1;
+  string Name = 2;
+  string Type = 3;
+}
+
+message AddHackathonResponse {
+  string ID = 1;
+}
+
+message CloseHackathonRequest {
+  string ID = 1;
+}
+
+message AddHackathonParticipantRequest {
+  string ID = 1;
+  string HackathonCode = 2;
+  string Endpoint = 3;
+  string Name = 4;
+}
+
+message HackathonsResponse {
+  message Hackathon {
+    string ID = 1;
+    string Name = 2;
+    int64 Participants = 3;
+    string Type = 4;
+    string CreatedAt = 5;
+    string ClosedAt = 6;
+  }
+  repeated Hackathon Items = 1;
+}
+
+message HackathonParticipantsRequest {
+  string ID = 1;
+}
+
+message HackathonParticipantsResponse {
+  message Participant {
+    string ID = 1;
+    string Name = 2;
+    int64 Score = 3;
+    string CreatedAt = 4;
+    string ScoredAt = 5;
+  }
+  repeated Participant Items = 1;
+}

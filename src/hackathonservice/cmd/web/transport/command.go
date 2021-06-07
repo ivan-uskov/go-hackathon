@@ -1,83 +1,46 @@
 package transport
 
 import (
-	"go-hackathon/src/common/application/errors"
-	"go-hackathon/src/common/cmd/transport"
+	"context"
+	"github.com/golang/protobuf/ptypes/empty"
+	hackathon "go-hackathon/api"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/input"
-	"net/http"
 )
 
-type addHackathonRequest struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-}
-
-type addHackathonResponse struct {
-	ID string `json:"id"`
-}
-
-func (s *server) addHackathon(w http.ResponseWriter, r *http.Request) {
-	var request addHackathonRequest
-	err := transport.ReadJson(r, &request)
-	if err != nil {
-		transport.ProcessError(w, err)
-		return
-	}
-
+func (s *server) AddHackathon(_ context.Context, request *hackathon.AddHackathonRequest) (*hackathon.AddHackathonResponse, error) {
 	id, err := s.api.AddHackathon(input.AddHackathonInput{
 		Code: request.Code,
 		Name: request.Name,
 		Type: request.Type,
 	})
+
 	if err != nil {
-		transport.ProcessError(w, err)
-		return
+		return nil, err
 	}
 
-	transport.RenderJson(w, addHackathonResponse{ID: id.String()})
+	return &hackathon.AddHackathonResponse{ID: id.String()}, nil
 }
 
-func (s *server) closeHackathon(w http.ResponseWriter, r *http.Request) {
-	id, found := transport.Parameter(r, "ID")
-	if !found {
-		transport.ProcessError(w, errors.InvalidArgumentError)
+func (s *server) CloseHackathon(_ context.Context, request *hackathon.CloseHackathonRequest) (*empty.Empty, error) {
+	err := s.api.CloseHackathon(input.CloseHackathonInput{HackathonID: request.ID})
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.api.CloseHackathon(input.CloseHackathonInput{HackathonID: id})
-	if err != nil {
-		transport.ProcessError(w, err)
-		return
-	}
+	return &empty.Empty{}, nil
 }
 
-type addHackathonParticipantRequest struct {
-	HackathonCode string `json:"hackathon_code"`
-	Endpoint      string `json:"endpoint"`
-	Name          string `json:"name"`
-}
-
-func (s *server) addHackathonParticipant(w http.ResponseWriter, r *http.Request) {
-	id, found := transport.Parameter(r, "ID")
-	if !found {
-		transport.ProcessError(w, errors.InvalidArgumentError)
-	}
-
-	var request addHackathonParticipantRequest
-	err := transport.ReadJson(r, &request)
-	if err != nil {
-		transport.ProcessError(w, err)
-		return
-	}
-
-	err = s.api.AddHackathonParticipant(input.AddHackathonParticipantInput{
-		HackathonID:   id,
+func (s *server) AddHackathonParticipant(_ context.Context, request *hackathon.AddHackathonParticipantRequest) (*empty.Empty, error) {
+	err := s.api.AddHackathonParticipant(input.AddHackathonParticipantInput{
+		HackathonID:   request.ID,
 		HackathonCode: request.HackathonCode,
 		Name:          request.Name,
 		Endpoint:      request.Endpoint,
 	})
+
 	if err != nil {
-		transport.ProcessError(w, err)
-		return
+		return nil, err
 	}
+
+	return &empty.Empty{}, nil
 }

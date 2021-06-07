@@ -1,7 +1,11 @@
 package transport
 
 import (
+	"context"
 	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	log "github.com/sirupsen/logrus"
+	"go-hackathon/api"
 	"go-hackathon/src/common/cmd"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
 	"net/http"
@@ -11,18 +15,19 @@ type server struct {
 	api api.Api
 }
 
-func Router(api api.Api) http.Handler {
+func Router(ctx context.Context, api api.Api) http.Handler {
 	srv := &server{api: api}
 
+	router := runtime.NewServeMux()
+	err := hackathon.RegisterHackathonServiceHandlerServer(ctx, router, srv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := mux.NewRouter()
+	r.Use(cmd.LogMiddleware)
+	r.PathPrefix("/api").Handler(router)
 	r.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}/participants", srv.getHackathonParticipantsPage).Methods(http.MethodGet)
 
-	s := r.PathPrefix("/api/v1").Subrouter()
-	s.HandleFunc("/hackathons", srv.hackathonsList).Methods(http.MethodGet)
-	s.HandleFunc("/hackathon", srv.addHackathon).Methods(http.MethodPost)
-	s.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}", srv.closeHackathon).Methods(http.MethodDelete)
-	s.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}/participant", srv.addHackathonParticipant).Methods(http.MethodPost)
-	s.HandleFunc("/hackathon/{ID:[0-9a-zA-Z-]+}/participants", srv.getHackathonParticipants).Methods(http.MethodGet)
-
-	return cmd.LogMiddleware(r)
+	return r
 }

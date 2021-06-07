@@ -1,2 +1,6 @@
 .idea
 /var
+
+*.pb.go
+*.pb.gw.go
+*.swagger.json

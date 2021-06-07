@@ -1,78 +1,55 @@
 package transport
 
 import (
+	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/empty"
+	hackathon "go-hackathon/api"
 	"go-hackathon/src/common/application/errors"
 	"go-hackathon/src/common/cmd/transport"
 	"net/http"
 	"text/template"
-	"time"
 )
 
-type hackathonResponse struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Participants int        `json:"participants"`
-	Type         string     `json:"type"`
-	CreatedAt    time.Time  `json:"created_at"`
-	ClosedAt     *time.Time `json:"closed_at"`
-}
-
-func (s *server) hackathonsList(w http.ResponseWriter, _ *http.Request) {
+func (s *server) GetHackathons(_ context.Context, _ *empty.Empty) (*hackathon.HackathonsResponse, error) {
 	hh, err := s.api.GetHackathons()
 	if err != nil {
-		transport.ProcessError(w, err)
-		return
+		return nil, err
 	}
 
-	hr := make([]hackathonResponse, len(hh))
+	hr := make([]*hackathon.HackathonsResponse_Hackathon, len(hh))
 	for i, h := range hh {
-		hr[i] = hackathonResponse{
+		hr[i] = &hackathon.HackathonsResponse_Hackathon{
 			ID:           h.ID,
 			Name:         h.Name,
-			Participants: h.Participants,
+			Participants: int64(h.Participants),
 			Type:         h.Type,
-			CreatedAt:    h.CreatedAt,
-			ClosedAt:     h.ClosedAt,
+			CreatedAt:    h.CreatedAt.String(),
+			ClosedAt:     transport.TimeToString(h.ClosedAt),
 		}
 	}
 
-	transport.RenderJson(w, hr)
+	return &hackathon.HackathonsResponse{Items: hr}, nil
 }
 
-type participantResponse struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Score     int        `json:"score"`
-	CreatedAt time.Time  `json:"created_at"`
-	ScoredAt  *time.Time `json:"scored_at"`
-}
-
-func (s *server) getHackathonParticipants(w http.ResponseWriter, r *http.Request) {
-	id, found := transport.Parameter(r, "ID")
-	if !found {
-		transport.ProcessError(w, errors.InvalidArgumentError)
-		return
-	}
-
-	pp, err := s.api.GetHackathonParticipants(id)
+func (s *server) GetHackathonParticipants(_ context.Context, request *hackathon.HackathonParticipantsRequest) (*hackathon.HackathonParticipantsResponse, error) {
+	pp, err := s.api.GetHackathonParticipants(request.ID)
 	if err != nil {
-		transport.ProcessError(w, err)
-		return
+		return nil, err
 	}
 
-	pr := make([]participantResponse, len(pp))
+	pr := make([]*hackathon.HackathonParticipantsResponse_Participant, len(pp))
 	for i, po := range pp {
-		pr[i] = participantResponse{
+		pr[i] = &hackathon.HackathonParticipantsResponse_Participant{
 			ID:        po.ID,
 			Name:      po.Name,
-			Score:     po.Score,
-			CreatedAt: po.CreatedAt,
-			ScoredAt:  po.ScoredAt,
+			Score:     int64(po.Score),
+			CreatedAt: po.CreatedAt.String(),
+			ScoredAt:  transport.TimeToString(po.ScoredAt),
 		}
 	}
 
-	transport.RenderJson(w, pr)
+	return &hackathon.HackathonParticipantsResponse{Items: pr}, nil
 }
 
 var hackathonParticipantsTemplate = template.Must(template.ParseFiles("/app/templates/hackathon_participants.html"))
@@ -90,7 +67,7 @@ func (s *server) getHackathonParticipantsPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	hackathon, err := s.api.GetHackathon(id)
+	h, err := s.api.GetHackathon(id)
 	if err != nil {
 		transport.ProcessError(w, err)
 		return
@@ -99,7 +76,7 @@ func (s *server) getHackathonParticipantsPage(w http.ResponseWriter, r *http.Req
 	args := hackathonParticipantsTemplateArgs{
 		fmt.Sprintf("/api/v1/hackathon/%s/participants", id),
 		fmt.Sprintf("/api/v1/hackathon/%s/participant", id),
-		hackathon.Name,
+		h.Name,
 	}
 
 	err = hackathonParticipantsTemplate.Execute(w, args)

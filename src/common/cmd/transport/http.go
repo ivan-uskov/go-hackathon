@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func ProcessError(w http.ResponseWriter, e error) {
@@ -54,4 +55,12 @@ func CloseBody(body io.ReadCloser) {
 	if err != nil {
 		log.Error()
 	}
+}
+
+func TimeToString(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+
+	return t.String()
 }
