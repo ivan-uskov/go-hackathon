@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"github.com/google/uuid"
+	scoring "go-hackathon/api/scoringservice"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/input"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/output"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/application/adapter"
@@ -28,14 +29,14 @@ type api struct {
 	pqs        query.ParticipantQueryService
 	unitOfWork command.UnitOfWork
 
-	tasks adapter.TaskAdapter
+	scoring adapter.ScoringAdapter
 }
 
-func NewApi(db *sql.DB) Api {
+func NewApi(db *sql.DB, scoringApi scoring.ScoringServiceClient) Api {
 	return &api{
 		sqs:        queryImpl.NewHackathonQueryService(db),
 		pqs:        queryImpl.NewParticipantQueryService(db),
 		unitOfWork: repository.NewUnitOfWork(db),
-		tasks:      adapterImpl.NewTaskAdapter(),
+		scoring:    adapterImpl.NewScoringAdapter(scoringApi),
 	}
 }

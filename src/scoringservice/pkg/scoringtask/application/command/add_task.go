@@ -9,7 +9,7 @@ import (
 
 type AddTaskCommand struct {
 	SolutionID uuid.UUID
-	TaskType   int
+	TaskType   string
 	Endpoint   string
 }
 

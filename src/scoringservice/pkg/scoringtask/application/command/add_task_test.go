@@ -2,7 +2,6 @@ package command
 
 import (
 	"go-hackathon/src/scoringservice/pkg/scoringtask/application/errors"
-	"go-hackathon/src/scoringservice/pkg/scoringtask/model"
 	"testing"
 )
 
@@ -31,7 +30,7 @@ func TestAddScoringTaskWithInvalidType(t *testing.T) {
 	h := NewAddTaskCommandHandler(&mockUnitOfWork{})
 	err := h.Handle(AddTaskCommand{
 		mockScoringTask.SolutionID,
-		model.TaskTypeInvalid,
+		"invalid type",
 		mockScoringTask.Endpoint,
 	})
 	if err != errors.InvalidTaskTypeError {

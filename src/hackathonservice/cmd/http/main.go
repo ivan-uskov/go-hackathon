@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
+	scoring "go-hackathon/api/scoringservice"
 	"go-hackathon/src/common/cmd"
 	transportUtils "go-hackathon/src/common/cmd/transport"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
@@ -18,6 +19,8 @@ const appID = "hackathon"
 type config struct {
 	cmd.HTTPConfig
 	cmd.DatabaseConfig
+
+	ScoringGRPCAddress string `envconfig:"scoring_grpc_address"`
 }
 
 func main() {
@@ -39,7 +42,8 @@ func main() {
 
 func startServer(ctx context.Context, c *config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
-	handler := transport.Router(ctx, api.NewApi(db))
+	scoringConn := transportUtils.DialGRPC(c.ScoringGRPCAddress)
+	handler := transport.Router(ctx, api.NewApi(db, scoring.NewScoringServiceClient(scoringConn)))
 
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: handler}
 
@@ -58,5 +62,6 @@ func startServer(ctx context.Context, c *config) {
 		}
 
 		transportUtils.CloseService(db, "database connection")
+		transportUtils.CloseService(scoringConn, "scoring connection")
 	}()
 }

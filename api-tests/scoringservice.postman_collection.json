@@ -43,7 +43,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": \"expressions\",\n    \"endpoint\": \"http://localhost\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/task",
@@ -98,7 +98,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": \"expressions\",\n    \"endpoint\": \"http://localhost\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/task",
@@ -153,7 +153,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+					"raw": "{\n    \"solution_id\": \"{{lastSolutionID}}\",\n    \"task_type\": \"expressions\",\n    \"endpoint\": \"http://localhost\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/task",
@@ -247,7 +247,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"solution_id\": \"123\",\n    \"task_type\": 1,\n    \"endpoint\": \"http://localhost\"\n}"
+					"raw": "{\n    \"solution_id\": \"123\",\n    \"task_type\": \"expressions\",\n    \"endpoint\": \"http://localhost\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/task",
@@ -353,87 +353,6 @@
 						"api",
 						"v1",
 						"tasks"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Translate task type",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Check translate task type\", function () {",
-							"    pm.response.to.have.status(200);",
-							"    const jsonData = pm.response.json();",
-							"    pm.expect(jsonData.hasOwnProperty('task_type')).to.be.true;",
-							"    pm.expect(jsonData.task_type).to.be.equals(1);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"task_type\": \"expressions\"\n}\n"
-				},
-				"url": {
-					"raw": "http://{{url}}/api/v1/task/type/translate",
-					"protocol": "http",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"task",
-						"type",
-						"translate"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Translate invalid task type",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Check invalid task type returns 500\", function () {",
-							"    pm.response.to.have.status(500);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"task_type\": \"rats\"\n}\n"
-				},
-				"url": {
-					"raw": "http://{{url}}/api/v1/task/type/translate",
-					"protocol": "http",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"task",
-						"type",
-						"translate"
 					]
 				}
 			},

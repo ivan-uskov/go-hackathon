@@ -11,7 +11,7 @@ type Hackathon struct {
 	ID        uuid.UUID
 	Code      string
 	Name      string
-	Type      int
+	Type      string
 	CreatedAt time.Time
 	ClosedAt  *time.Time
 }

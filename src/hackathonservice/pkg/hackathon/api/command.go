@@ -8,7 +8,7 @@ import (
 )
 
 func (a *api) AddHackathon(in input.AddHackathonInput) (*uuid.UUID, error) {
-	h := command.NewAddHackathonCommandHandler(a.unitOfWork, a.tasks)
+	h := command.NewAddHackathonCommandHandler(a.unitOfWork, a.scoring)
 	id, err := h.Handle(in.Command())
 	return id, errors.WrapError(err)
 }

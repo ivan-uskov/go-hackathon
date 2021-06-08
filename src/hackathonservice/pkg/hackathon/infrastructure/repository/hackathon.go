@@ -77,7 +77,7 @@ func parseHackathon(r *sql.Rows) (*model.Hackathon, error) {
 	var hackathonId string
 	var code string
 	var name string
-	var t int
+	var t string
 	var createdAt time.Time
 	var closedAtNullable sql.NullTime
 

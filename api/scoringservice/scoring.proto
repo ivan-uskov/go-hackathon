@@ -20,29 +20,18 @@ service ScoringService {
       body: "*"
     };
   }
-
-  rpc TranslateTaskType (TranslateTaskTypeRequest) returns (TranslateTaskTypeResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/task/type/translate"
-      body: "*"
-    };
-  }
 }
 
 message AddTaskRequest {
+  enum TaskType {
+    expressions = 0;
+  }
+
   string solution_id = 1;
-  int32 task_type = 2;
+  TaskType task_type = 2;
   string endpoint = 3;
 }
 
 message RemoveTasksRequest {
   repeated string solution_ids = 1;
-}
-
-message TranslateTaskTypeRequest {
-  string task_type = 1;
-}
-
-message TranslateTaskTypeResponse {
-  int32 task_type = 1;
 }

@@ -80,7 +80,7 @@ func parseHackathon(r *sql.Rows) (*data.HackathonData, error) {
 	var hackathonId string
 	var name string
 	var participants int
-	var t int
+	var t string
 	var createdAt time.Time
 	var closedAtNullable sql.NullTime
 

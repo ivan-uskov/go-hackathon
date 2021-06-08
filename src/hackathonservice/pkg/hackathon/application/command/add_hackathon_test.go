@@ -8,17 +8,22 @@ import (
 const mockValidTaskType = "someType"
 const mockInvalidTaskType = "invalidTaskType"
 
-type mockTasksAdapter struct{}
+type mockScoringAdapter struct{}
 
-func (m mockTasksAdapter) TranslateType(t string) (int, bool) {
-	if t == mockInvalidTaskType {
-		return 0, false
-	}
-	return 1, true
+func (m mockScoringAdapter) AddTask(solutionID string, taskType string, endpoint string) error {
+	return nil
+}
+
+func (m mockScoringAdapter) RemoveTasks(solutionIDs []string) error {
+	return nil
+}
+
+func (m mockScoringAdapter) ValidateTaskType(taskType string) bool {
+	return taskType == mockValidTaskType
 }
 
 func TestAddHackathonWithEmptyCode(t *testing.T) {
-	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockTasksAdapter{}}
+	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
 		"",
 		mockHackathon.Name,
@@ -30,7 +35,7 @@ func TestAddHackathonWithEmptyCode(t *testing.T) {
 }
 
 func TestAddHackathonWithEmptyName(t *testing.T) {
-	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockTasksAdapter{}}
+	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
 		mockHackathon.Code,
 		"",
@@ -42,7 +47,7 @@ func TestAddHackathonWithEmptyName(t *testing.T) {
 }
 
 func TestAddHackathonWithInvalidTaskType(t *testing.T) {
-	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockTasksAdapter{}}
+	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
 		mockHackathon.Code,
 		mockHackathon.Name,
@@ -54,7 +59,7 @@ func TestAddHackathonWithInvalidTaskType(t *testing.T) {
 }
 
 func TestAddDuplicateHackathon(t *testing.T) {
-	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockTasksAdapter{}}
+	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
 		mockHackathon.Code,
 		mockHackathon.Name,

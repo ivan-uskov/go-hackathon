@@ -6,6 +6,9 @@ import (
 )
 
 func InternalError(e error) error {
-	log.Error(e)
+	if e != nil {
+		log.Error(e)
+	}
+
 	return errors.InternalError
 }

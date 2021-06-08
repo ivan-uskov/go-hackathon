@@ -2,7 +2,6 @@ package transport
 
 import (
 	"context"
-	"errors"
 	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/api/scoringservice"
@@ -20,7 +19,7 @@ type server struct {
 func (s *server) AddTask(_ context.Context, request *scoring.AddTaskRequest) (*empty.Empty, error) {
 	err := s.tasksApi.AddTask(input.AddScoringTaskInput{
 		SolutionID: request.SolutionId,
-		TaskType:   int(request.TaskType),
+		TaskType:   request.TaskType.String(),
 		Endpoint:   request.Endpoint,
 	})
 
@@ -41,15 +40,6 @@ func (s *server) RemoveTasks(_ context.Context, request *scoring.RemoveTasksRequ
 	}
 
 	return &empty.Empty{}, nil
-}
-
-func (s *server) TranslateTaskType(_ context.Context, request *scoring.TranslateTaskTypeRequest) (*scoring.TranslateTaskTypeResponse, error) {
-	t, ok := s.tasksApi.TranslateType(request.TaskType)
-	if !ok {
-		return nil, errors.New("invalid task type")
-	}
-
-	return &scoring.TranslateTaskTypeResponse{TaskType: int32(t)}, nil
 }
 
 func Router(ctx context.Context, tasksApi api.Api) http.Handler {

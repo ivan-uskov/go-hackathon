@@ -2,7 +2,7 @@ CREATE TABLE `hackathon` (
                          `hackathon_id` BINARY(16),
                          `code` VARCHAR(255) UNIQUE NOT NULL,
                          `name` VARCHAR(255) NOT NULL,
-                         `type` INTEGER NOT NULL,
+                         `type` VARCHAR(255) NOT NULL,
                          `created_at` DATETIME NOT NULL,
                          `closed_at` DATETIME,
                          PRIMARY KEY (hackathon_id)

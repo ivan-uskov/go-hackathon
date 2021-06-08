@@ -16,15 +16,15 @@ type AddHackathonCommand struct {
 
 type addHackathonCommandHandler struct {
 	unitOfWork UnitOfWork
-	tasks      adapter.TaskAdapter
+	scoring    adapter.ScoringAdapter
 }
 
 type AddHackathonCommandHandler interface {
 	Handle(command AddHackathonCommand) (*uuid.UUID, error)
 }
 
-func NewAddHackathonCommandHandler(unitOfWork UnitOfWork, tasks adapter.TaskAdapter) AddHackathonCommandHandler {
-	return &addHackathonCommandHandler{unitOfWork, tasks}
+func NewAddHackathonCommandHandler(unitOfWork UnitOfWork, scoring adapter.ScoringAdapter) AddHackathonCommandHandler {
+	return &addHackathonCommandHandler{unitOfWork, scoring}
 }
 
 func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, error) {
@@ -39,8 +39,7 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 			return errors.InvalidHackathonNameError
 		}
 
-		taskType, valid := h.tasks.TranslateType(c.Type)
-		if !valid {
+		if !h.scoring.ValidateTaskType(c.Type) {
 			return errors.InvalidHackathonTypeError
 		}
 
@@ -58,7 +57,7 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 			ID:        id,
 			Code:      c.Code,
 			Name:      c.Name,
-			Type:      taskType,
+			Type:      c.Type,
 			CreatedAt: time.Now(),
 		})
 	})

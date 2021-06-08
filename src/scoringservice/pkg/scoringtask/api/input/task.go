@@ -8,7 +8,7 @@ import (
 
 type AddScoringTaskInput struct {
 	SolutionID string
-	TaskType   int
+	TaskType   string
 	Endpoint   string
 }
 

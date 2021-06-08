@@ -79,7 +79,7 @@ func parseScoringTask(rows *sql.Rows) (*model.ScoringTask, error) {
 	var id string
 	var solutionID string
 	var endpoint string
-	var t int
+	var t string
 	var score int
 	var createdAt time.Time
 	var scoredAtNullable sql.NullTime

@@ -10,7 +10,7 @@ var mockHackathon = model.Hackathon{
 	ID:        uuid.New(),
 	Code:      "MockHackathon",
 	Name:      "MockHackathon",
-	Type:      model.HackathonTypeArithmeticExpression,
+	Type:      "test_type",
 	CreatedAt: time.Now(),
 }
 

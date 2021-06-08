@@ -6,13 +6,11 @@ import (
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/input"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/application/command"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/infrastructure/repository"
-	"go-hackathon/src/scoringservice/pkg/scoringtask/model"
 )
 
 type Api interface {
 	AddTask(input input.AddScoringTaskInput) error
 	RemoveTasks(input input.RemoveScoringTasksInput) error
-	TranslateType(t string) (int, bool)
 }
 
 type api struct {
@@ -41,8 +39,4 @@ func (a *api) RemoveTasks(in input.RemoveScoringTasksInput) error {
 
 	h := command.NewRemoveTasksCommandHandler(a.unitOfWork)
 	return errors.WrapError(h.Handle(*c))
-}
-
-func (a *api) TranslateType(t string) (int, bool) {
-	return model.TranslateType(t)
 }

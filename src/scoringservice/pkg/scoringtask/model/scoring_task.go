@@ -9,7 +9,7 @@ type ScoringTask struct {
 	ID         uuid.UUID
 	SolutionID uuid.UUID
 	Endpoint   string
-	Type       int
+	Type       string
 	Score      int
 	CreatedAt  time.Time
 	ScoredAt   *time.Time

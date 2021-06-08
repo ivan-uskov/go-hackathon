@@ -1,18 +1,7 @@
 package model
 
-const TaskTypeArithmeticExpressionAlias = "expressions"
+const TaskTypeArithmeticExpression = "expressions"
 
-const TaskTypeArithmeticExpression = 1
-const TaskTypeInvalid = 0
-
-func TranslateType(t string) (int, bool) {
-	if t == TaskTypeArithmeticExpressionAlias {
-		return TaskTypeArithmeticExpression, true
-	}
-
-	return TaskTypeInvalid, false
-}
-
-func IsTypeValid(t int) bool {
+func IsTypeValid(t string) bool {
 	return t == TaskTypeArithmeticExpression
 }
