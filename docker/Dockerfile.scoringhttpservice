@@ -14,9 +14,9 @@ COPY . /build
 WORKDIR /build
 
 RUN GOARCH=amd64 GOOS=linux CGO_ENABLED=0 \
-    go build -o ./bin/scoringwebservice ./src/scoringservice/cmd/web
+    go build -o ./bin/scoringhttpservice ./src/scoringservice/cmd/http
 
-RUN chmod +x ./bin/scoringwebservice
+RUN chmod +x ./bin/scoringhttpservice
 
 # -------- build image --------
 FROM alpine:latest
@@ -26,8 +26,8 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser
 
-COPY --from=builder /build/bin/scoringwebservice /app/bin/scoringwebservice
+COPY --from=builder /build/bin/scoringhttpservice /app/bin/scoringhttpservice
 
 WORKDIR /app
 
-CMD ["/app/bin/scoringwebservice"]
+CMD ["/app/bin/scoringhttpservice"]

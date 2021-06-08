@@ -7,8 +7,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/cmd"
-	"go-hackathon/src/hackathonservice/cmd/web/transport"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
+	"go-hackathon/src/hackathonservice/pkg/transport"
 	"net/http"
 )
 

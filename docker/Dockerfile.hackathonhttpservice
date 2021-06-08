@@ -14,9 +14,9 @@ COPY . /build
 WORKDIR /build
 
 RUN GOARCH=amd64 GOOS=linux CGO_ENABLED=0 \
-    go build -o ./bin/hackathonwebservice ./src/hackathonservice/cmd/web
+    go build -o ./bin/hackathonhttpservice ./src/hackathonservice/cmd/http
 
-RUN chmod +x ./bin/hackathonwebservice
+RUN chmod +x ./bin/hackathonhttpservice
 
 # -------- build image --------make
 FROM alpine:latest
@@ -26,9 +26,9 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser
 
-COPY --from=builder /build/bin/hackathonwebservice /app/bin/hackathonwebservice
+COPY --from=builder /build/bin/hackathonhttpservice /app/bin/hackathonhttpservice
 COPY ./templates /app/templates
 
 WORKDIR /app
 
-CMD ["/app/bin/hackathonwebservice"]
+CMD ["/app/bin/hackathonhttpservice"]

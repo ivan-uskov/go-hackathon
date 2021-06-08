@@ -5,7 +5,7 @@ services:
     container_name: hackathonwebservice
     build:
       context: ../
-      dockerfile: docker/Dockerfile.hackathonwebservice
+      dockerfile: docker/Dockerfile.hackathonhttpservice
     env_file:
       - ../.env
     ports:
@@ -35,7 +35,7 @@ services:
     container_name: scoringwebservice
     build:
       context: ../
-      dockerfile: docker/Dockerfile.scoringwebservice
+      dockerfile: docker/Dockerfile.scoringhttpservice
     env_file:
       - ../.env
     ports:
