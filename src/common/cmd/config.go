@@ -9,6 +9,10 @@ type DatabaseConfig struct {
 	DatabaseArguments string `envconfig:"database_arguments"`
 }
 
-type WebConfig struct {
-	ServerPort string `envconfig:"port"`
+type HTTPConfig struct {
+	ServerPort string `envconfig:"http_port"`
+}
+
+type GRPCConfig struct {
+	ServerPort string `envconfig:"grpc_port"`
 }

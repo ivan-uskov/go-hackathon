@@ -1,18 +1,18 @@
 version: '3'
 
 services:
-  hackathonwebservice:
-    container_name: hackathonwebservice
+  hackathonhttpservice:
+    container_name: hackathonhttpservice
     build:
       context: ../
       dockerfile: docker/Dockerfile.hackathonhttpservice
     env_file:
       - ../.env
     ports:
-      - ${HACKATHON_PORT}:${HACKATHON_PORT}
+      - ${HACKATHON_HTTP_PORT}:${HACKATHON_HTTP_PORT}
     depends_on:
       - hackathonservice_db
-      - scoringwebservice
+      - scoringhttpservice
 
   hackathonservice_db:
     image: mysql:8.0
@@ -31,15 +31,28 @@ services:
     volumes:
       - ../../var/hackathonservice/database:/var/lib/mysql
 
-  scoringwebservice:
-    container_name: scoringwebservice
+  scoringhttpservice:
+    container_name: scoringhttpservice
     build:
       context: ../
       dockerfile: docker/Dockerfile.scoringhttpservice
     env_file:
       - ../.env
     ports:
-      - ${SCORING_PORT}:${SCORING_PORT}
+      - ${SCORING_HTTP_PORT}:${SCORING_HTTP_PORT}
+    depends_on:
+      - scoringservice_db
+      - scoringgrpcservice
+
+  scoringgrpcservice:
+    container_name: scoringgrpcservice
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.scoringgrpcservice
+    env_file:
+      - ../.env
+    ports:
+      - ${SCORING_GRPC_PORT}:${SCORING_GRPC_PORT}
     depends_on:
       - scoringservice_db
 

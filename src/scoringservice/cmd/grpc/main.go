@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
@@ -17,7 +18,7 @@ import (
 const appID = "scoring"
 
 type config struct {
-	cmd.WebConfig
+	cmd.GRPCConfig
 	cmd.DatabaseConfig
 }
 
@@ -39,7 +40,7 @@ func main() {
 }
 
 func startServer(ctx context.Context, c *config) {
-	l, err := net.Listen("tcp", c.ServerPort)
+	l, err := net.Listen("tcp", fmt.Sprintf(":%v", c.ServerPort))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/api/scoringservice"
 	"go-hackathon/src/common/cmd"
+	"go-hackathon/src/common/cmd/transport"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/input"
 	"net/http"
@@ -53,7 +53,7 @@ func (s *server) TranslateTaskType(_ context.Context, request *scoring.Translate
 }
 
 func Router(ctx context.Context, tasksApi api.Api) http.Handler {
-	router := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{EmitDefaults: true, OrigName: true}))
+	router := transport.NewServeMux()
 	err := scoring.RegisterScoringServiceHandlerServer(ctx, router, Server(tasksApi))
 	if err != nil {
 		log.Fatal(err)

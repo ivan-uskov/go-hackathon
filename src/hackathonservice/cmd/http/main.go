@@ -16,7 +16,7 @@ import (
 const appID = "hackathon"
 
 type config struct {
-	cmd.WebConfig
+	cmd.HTTPConfig
 	cmd.DatabaseConfig
 }
 

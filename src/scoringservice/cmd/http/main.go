@@ -16,7 +16,7 @@ import (
 const appID = "scoring"
 
 type config struct {
-	cmd.WebConfig
+	cmd.HTTPConfig
 	cmd.DatabaseConfig
 }
 

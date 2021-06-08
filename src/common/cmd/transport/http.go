@@ -2,6 +2,7 @@ package transport
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/application/errors"
 	"io"
@@ -9,6 +10,15 @@ import (
 	"strings"
 	"time"
 )
+
+var grpcServeMuxOptions = &runtime.JSONPb{
+	EmitDefaults: true,
+	OrigName:     true,
+}
+
+func NewServeMux() *runtime.ServeMux {
+	return runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, grpcServeMuxOptions))
+}
 
 func ProcessError(w http.ResponseWriter, e error) {
 	if e == errors.InternalError {

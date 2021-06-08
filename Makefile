@@ -34,7 +34,7 @@ scoring_migrates:
         -path=/migrations -database "$(SCORING_DATABASE_DRIVER)://$(SCORING_DATABASE_USER):$(SCORING_DATABASE_PASSWORD)@tcp(localhost:3371)/$(SCORING_DATABASE_NAME)" up
 
 build: fmt lint test proto
-	docker-compose -f docker/docker-compose.yml build
+	docker-compose -f docker/docker-compose.yml build --force-rm --parallel
 
 up:
 	docker-compose -f docker/docker-compose.yml up -d
@@ -46,8 +46,8 @@ logs:
 	docker-compose -f docker/docker-compose.yml logs
 
 api_tests: up
-	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${HACKATHON_PORT} /app/hackathonservice.postman_collection.json
-	docker run -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${SCORING_PORT} /app/scoringservice.postman_collection.json
+	docker run --rm -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${HACKATHON_HTTP_PORT} /app/hackathonservice.postman_collection.json
+	docker run --rm -v $(shell pwd)/api-tests:/app --network host postman/newman run --global-var url=localhost:${SCORING_HTTP_PORT} /app/scoringservice.postman_collection.json
 
 proto:
 	docker run --rm -v "$(shell pwd)/api/hackathonservice:/app" ivanuskov/go-protobuf-builder *.proto
