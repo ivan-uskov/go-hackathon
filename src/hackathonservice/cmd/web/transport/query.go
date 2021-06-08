@@ -20,9 +20,9 @@ func (s *server) GetHackathons(_ context.Context, _ *empty.Empty) (*hackathon.Ha
 	hr := make([]*hackathon.HackathonsResponse_Hackathon, len(hh))
 	for i, h := range hh {
 		hr[i] = &hackathon.HackathonsResponse_Hackathon{
-			ID:           h.ID,
+			Id:           h.ID,
 			Name:         h.Name,
-			Participants: int64(h.Participants),
+			Participants: int32(h.Participants),
 			Type:         h.Type,
 			CreatedAt:    h.CreatedAt.String(),
 			ClosedAt:     transport.TimeToString(h.ClosedAt),
@@ -33,7 +33,7 @@ func (s *server) GetHackathons(_ context.Context, _ *empty.Empty) (*hackathon.Ha
 }
 
 func (s *server) GetHackathonParticipants(_ context.Context, request *hackathon.HackathonParticipantsRequest) (*hackathon.HackathonParticipantsResponse, error) {
-	pp, err := s.api.GetHackathonParticipants(request.ID)
+	pp, err := s.api.GetHackathonParticipants(request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -41,9 +41,9 @@ func (s *server) GetHackathonParticipants(_ context.Context, request *hackathon.
 	pr := make([]*hackathon.HackathonParticipantsResponse_Participant, len(pp))
 	for i, po := range pp {
 		pr[i] = &hackathon.HackathonParticipantsResponse_Participant{
-			ID:        po.ID,
+			Id:        po.ID,
 			Name:      po.Name,
-			Score:     int64(po.Score),
+			Score:     int32(po.Score),
 			CreatedAt: po.CreatedAt.String(),
 			ScoredAt:  transport.TimeToString(po.ScoredAt),
 		}

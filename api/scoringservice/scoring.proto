@@ -16,32 +16,33 @@ service ScoringService {
 
   rpc RemoveTasks (RemoveTasksRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/v1/tasks"
+      post: "/api/v1/tasks"
+      body: "*"
     };
   }
 
   rpc TranslateTaskType (TranslateTaskTypeRequest) returns (TranslateTaskTypeResponse) {
     option (google.api.http) = {
-      post: "/api/v1/tasks"
+      post: "/api/v1/task/type/translate"
       body: "*"
     };
   }
 }
 
 message AddTaskRequest {
-  string SolutionID = 1;
-  int32 TaskType = 2;
-  string Endpoint = 3;
+  string solution_id = 1;
+  int32 task_type = 2;
+  string endpoint = 3;
 }
 
 message RemoveTasksRequest {
-  repeated string SolutionIDs = 1;
+  repeated string solution_ids = 1;
 }
 
 message TranslateTaskTypeRequest {
-  string TaskType = 1;
+  string task_type = 1;
 }
 
 message TranslateTaskTypeResponse {
-  int32 TaskType = 1;
+  int32 task_type = 1;
 }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "bc20d25c-011a-4dd7-a5e5-ba84a8a87319",
+		"_postman_id": "2bfb5a19-7098-4cf6-8660-dce58f8d89c9",
 		"name": "scoringservice",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -197,7 +197,7 @@
 				}
 			],
 			"request": {
-				"method": "DELETE",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -235,7 +235,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Check add third task\", function () {",
-							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.status(500);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -281,7 +281,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Check remove tasks with invalid solution id fails\", function () {",
-							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.status(500);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -289,7 +289,7 @@
 				}
 			],
 			"request": {
-				"method": "DELETE",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -329,7 +329,7 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Check remove tasks with not existent solution id fails\", function () {",
-							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.status(500);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -337,7 +337,7 @@
 				}
 			],
 			"request": {
-				"method": "DELETE",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -407,8 +407,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Check invalid task type returns 400\", function () {",
-							"    pm.response.to.have.status(400);",
+							"pm.test(\"Check invalid task type returns 500\", function () {",
+							"    pm.response.to.have.status(500);",
 							"});"
 						],
 						"type": "text/javascript"

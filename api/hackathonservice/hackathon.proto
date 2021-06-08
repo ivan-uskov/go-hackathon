@@ -16,12 +16,12 @@ service HackathonService {
   }
   rpc CloseHackathon (CloseHackathonRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/v1/hackathon/{ID}"
+      delete: "/api/v1/hackathon/{id}"
     };
   }
   rpc AddHackathonParticipant (AddHackathonParticipantRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/api/v1/hackathon/{ID}/participant"
+      post: "/api/v1/hackathon/{id}/participant"
       body: "*"
     };
   }
@@ -34,55 +34,55 @@ service HackathonService {
   }
   rpc GetHackathonParticipants (HackathonParticipantsRequest) returns (HackathonParticipantsResponse) {
     option (google.api.http) = {
-      get: "/api/v1/hackathon/{ID}/participants"
+      get: "/api/v1/hackathon/{id}/participants"
     };
   }
 }
 
 message AddHackathonRequest {
-  string Code = 1;
-  string Name = 2;
-  string Type = 3;
+  string code = 1;
+  string name = 2;
+  string type = 3;
 }
 
 message AddHackathonResponse {
-  string ID = 1;
+  string id = 1;
 }
 
 message CloseHackathonRequest {
-  string ID = 1;
+  string id = 1;
 }
 
 message AddHackathonParticipantRequest {
-  string ID = 1;
-  string HackathonCode = 2;
-  string Endpoint = 3;
-  string Name = 4;
+  string id = 1;
+  string hackathon_code = 2;
+  string endpoint = 3;
+  string name = 4;
 }
 
 message HackathonsResponse {
   message Hackathon {
-    string ID = 1;
-    string Name = 2;
-    int64 Participants = 3;
-    string Type = 4;
-    string CreatedAt = 5;
-    string ClosedAt = 6;
+    string id = 1;
+    string name = 2;
+    int32 participants = 3;
+    string type = 4;
+    string created_at = 5;
+    string closed_at = 6;
   }
-  repeated Hackathon Items = 1;
+  repeated Hackathon items = 1;
 }
 
 message HackathonParticipantsRequest {
-  string ID = 1;
+  string id = 1;
 }
 
 message HackathonParticipantsResponse {
   message Participant {
-    string ID = 1;
-    string Name = 2;
-    int64 Score = 3;
-    string CreatedAt = 4;
-    string ScoredAt = 5;
+    string id = 1;
+    string name = 2;
+    int32 score = 3;
+    string created_at = 4;
+    string scored_at = 5;
   }
-  repeated Participant Items = 1;
+  repeated Participant items = 1;
 }

@@ -28,22 +28,37 @@ func main() {
 	cmd.SetupLogger()
 
 	killSignalChan := cmd.GetKillSignalChan()
-	srv := startServer(&c)
+
+	ctx, stopServer := context.WithCancel(context.Background())
+	startServer(ctx, &c)
 
 	cmd.WaitForKillSignal(killSignalChan)
-	log.Fatal(srv.Shutdown(context.Background()))
+	stopServer()
 }
 
-func startServer(c *config) *http.Server {
-	log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
+func startServer(ctx context.Context, c *config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
+	router := transport.Router(ctx, api.NewApi(db))
 
-	router := transport.Router(api.NewApi(db))
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: router}
+
 	go func() {
-		log.Fatal(srv.ListenAndServe())
-		log.Fatal(db.Close())
+		<-ctx.Done()
+		log.Info("Shutting down the http gateway server")
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Errorf("Failed to shutdown http gateway server: %v", err)
+		}
+
+		log.Info("Close database connection")
+		if err := db.Close(); err != nil {
+			log.Errorf("Failed to close db connection: %v", err)
+		}
 	}()
 
-	return srv
+	go func() {
+		log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("Failed to listen and serve: %v", err)
+		}
+	}()
 }

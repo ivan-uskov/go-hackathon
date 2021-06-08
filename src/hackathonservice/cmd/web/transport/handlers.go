@@ -18,7 +18,7 @@ type server struct {
 func Router(ctx context.Context, api api.Api) http.Handler {
 	srv := &server{api: api}
 
-	router := runtime.NewServeMux()
+	router := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{EmitDefaults: true, OrigName: true}))
 	err := hackathon.RegisterHackathonServiceHandlerServer(ctx, router, srv)
 	if err != nil {
 		log.Fatal(err)

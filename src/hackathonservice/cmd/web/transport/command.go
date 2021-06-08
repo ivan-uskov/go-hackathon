@@ -18,11 +18,11 @@ func (s *server) AddHackathon(_ context.Context, request *hackathon.AddHackathon
 		return nil, err
 	}
 
-	return &hackathon.AddHackathonResponse{ID: id.String()}, nil
+	return &hackathon.AddHackathonResponse{Id: id.String()}, nil
 }
 
 func (s *server) CloseHackathon(_ context.Context, request *hackathon.CloseHackathonRequest) (*empty.Empty, error) {
-	err := s.api.CloseHackathon(input.CloseHackathonInput{HackathonID: request.ID})
+	err := s.api.CloseHackathon(input.CloseHackathonInput{HackathonID: request.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (s *server) CloseHackathon(_ context.Context, request *hackathon.CloseHacka
 
 func (s *server) AddHackathonParticipant(_ context.Context, request *hackathon.AddHackathonParticipantRequest) (*empty.Empty, error) {
 	err := s.api.AddHackathonParticipant(input.AddHackathonParticipantInput{
-		HackathonID:   request.ID,
+		HackathonID:   request.Id,
 		HackathonCode: request.HackathonCode,
 		Name:          request.Name,
 		Endpoint:      request.Endpoint,
