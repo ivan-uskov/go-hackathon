@@ -53,13 +53,15 @@ func (s *server) TranslateTaskType(_ context.Context, request *scoring.Translate
 }
 
 func Router(ctx context.Context, tasksApi api.Api) http.Handler {
-	srv := &server{tasksApi: tasksApi}
-
 	router := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{EmitDefaults: true, OrigName: true}))
-	err := scoring.RegisterScoringServiceHandlerServer(ctx, router, srv)
+	err := scoring.RegisterScoringServiceHandlerServer(ctx, router, Server(tasksApi))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return cmd.LogMiddleware(router)
+}
+
+func Server(tasksApi api.Api) scoring.ScoringServiceServer {
+	return &server{tasksApi: tasksApi}
 }

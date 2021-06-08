@@ -56,7 +56,7 @@ func arithmetic(host string, expr string, res float64) bool {
 		return false
 	}
 
-	defer transport.CloseBody(r.Body)
+	defer transport.Close(r.Body)
 	clientRes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Debug(err)

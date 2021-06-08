@@ -1,14 +1,12 @@
 package transport
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/application/errors"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -20,40 +18,22 @@ func ProcessError(w http.ResponseWriter, e error) {
 	}
 }
 
-func RenderJson(w http.ResponseWriter, v interface{}) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Error(err)
-		ProcessError(w, errors.InternalError)
-		return
-	}
-}
-
-func ReadJson(r *http.Request, output interface{}) error {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return err
-	}
-	defer CloseBody(r.Body)
-
-	err = json.Unmarshal(b, &output)
-	if err != nil {
-		err = fmt.Errorf("can't parse %s to json", b)
-	}
-
-	return err
-}
-
 func Parameter(r *http.Request, key string) (string, bool) {
 	val, found := mux.Vars(r)[key]
 	return val, found
 }
 
-func CloseBody(body io.ReadCloser) {
-	err := body.Close()
+func CloseService(closer io.Closer, subject ...string) {
+	log.Infof("Close %v", subject)
+	Close(closer, subject...)
+}
+
+func Close(closer io.Closer, subject ...string) {
+	subjectStr := strings.Join(subject, "")
+
+	err := closer.Close()
 	if err != nil {
-		log.Error()
+		log.Errorf("Failed to close %v: %v", subjectStr, err)
 	}
 }
 

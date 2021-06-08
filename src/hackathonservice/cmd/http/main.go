@@ -7,6 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/cmd"
+	transportUtils "go-hackathon/src/common/cmd/transport"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
 	"go-hackathon/src/hackathonservice/pkg/transport"
 	"net/http"
@@ -43,22 +44,19 @@ func startServer(ctx context.Context, c *config) {
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: handler}
 
 	go func() {
+		log.WithField("port", c.ServerPort).Info("starting the server")
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("Failed to listen and serve: %v", err)
+		}
+	}()
+
+	go func() {
 		<-ctx.Done()
 		log.Info("Shutting down the http gateway server")
 		if err := srv.Shutdown(context.Background()); err != nil {
 			log.Errorf("Failed to shutdown http gateway server: %v", err)
 		}
 
-		log.Info("Close database connection")
-		if err := db.Close(); err != nil {
-			log.Errorf("Failed to close db connection: %v", err)
-		}
-	}()
-
-	go func() {
-		log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("Failed to listen and serve: %v", err)
-		}
+		transportUtils.CloseService(db, "database connection")
 	}()
 }
