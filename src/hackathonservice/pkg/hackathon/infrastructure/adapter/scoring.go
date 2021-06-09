@@ -24,12 +24,20 @@ func (s *scoringAdapter) AddTask(solutionID string, taskType string, endpoint st
 
 	taskTypeObj := scoring.AddTaskRequest_TaskType(v)
 	_, err := s.api.AddTask(context.Background(), &scoring.AddTaskRequest{SolutionId: solutionID, TaskType: taskTypeObj, Endpoint: endpoint})
-	return infrastructure.InternalError(err)
+	if err != nil {
+		return infrastructure.InternalError(err)
+	}
+
+	return nil
 }
 
 func (s *scoringAdapter) RemoveTasks(solutionIDs []string) error {
 	_, err := s.api.RemoveTasks(context.Background(), &scoring.RemoveTasksRequest{SolutionIds: solutionIDs})
-	return infrastructure.InternalError(err)
+	if err != nil {
+		return infrastructure.InternalError(err)
+	}
+
+	return nil
 }
 
 func (s *scoringAdapter) ValidateTaskType(taskType string) bool {

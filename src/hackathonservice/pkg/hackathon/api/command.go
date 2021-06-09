@@ -19,7 +19,7 @@ func (a *api) CloseHackathon(in input.CloseHackathonInput) error {
 		return err
 	}
 
-	h := command.NewCloseHackathonCommandHandler(a.unitOfWork)
+	h := command.NewCloseHackathonCommandHandler(a.unitOfWork, a.scoring)
 	return errors.WrapError(h.Handle(*c))
 }
 
@@ -29,6 +29,6 @@ func (a *api) AddHackathonParticipant(in input.AddHackathonParticipantInput) err
 		return err
 	}
 
-	h := command.NewAddParticipantCommandHandler(a.unitOfWork)
+	h := command.NewAddParticipantCommandHandler(a.unitOfWork, a.scoring)
 	return errors.WrapError(h.Handle(*c))
 }

@@ -19,6 +19,7 @@ type ParticipantRepository interface {
 	Add(p Participant) error
 	Get(id uuid.UUID) (*Participant, error)
 	GetByName(name string) (*Participant, error)
+	GetByHackathonID(hackathonID uuid.UUID) ([]Participant, error)
 }
 
 func (p *Participant) UpdateScore(s int) {

@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/google/uuid"
+	"go-hackathon/src/hackathonservice/pkg/hackathon/application/adapter"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/application/errors"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/model"
 	"time"
@@ -15,22 +16,26 @@ type AddParticipantCommand struct {
 
 type addParticipantCommandHandler struct {
 	unitOfWork UnitOfWork
+	scoring    adapter.ScoringAdapter
 }
 
 type AddParticipantCommandHandler interface {
 	Handle(command AddParticipantCommand) error
 }
 
-func NewAddParticipantCommandHandler(unitOfWork UnitOfWork) AddParticipantCommandHandler {
-	return &addParticipantCommandHandler{unitOfWork}
+func NewAddParticipantCommandHandler(unitOfWork UnitOfWork, scoring adapter.ScoringAdapter) AddParticipantCommandHandler {
+	return &addParticipantCommandHandler{unitOfWork, scoring}
 }
 
 func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) error {
-	return h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+	var hackathon *model.Hackathon
+	var participant *model.Participant
+	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
 		hackRepo := rp.HackathonRepository()
 		partRepo := rp.ParticipantRepository()
 
-		hackathon, err := hackRepo.Get(command.HackathonID)
+		var err error
+		hackathon, err = hackRepo.Get(command.HackathonID)
 		if err != nil {
 			return err
 		}
@@ -50,22 +55,29 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 			return errors.ParticipantEndpointIsEmptyError
 		}
 
-		participant, err := partRepo.GetByName(command.Name)
+		participant, err = partRepo.GetByName(command.Name)
 		if err != nil {
 			return err
 		}
 		if participant != nil {
 			return errors.ParticipantAlreadyExistsError
 		}
-
-		return partRepo.Add(model.Participant{
+		participant = &model.Participant{
 			ID:          uuid.New(),
 			HackathonID: command.HackathonID,
 			Endpoint:    removeSlashFromEnd(command.Endpoint),
 			Name:        command.Name,
 			CreatedAt:   time.Now(),
-		})
+		}
+
+		return partRepo.Add(*participant)
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return h.scoring.AddTask(participant.ID.String(), hackathon.Type, participant.Endpoint)
 }
 
 func removeSlashFromEnd(endpoint string) string {

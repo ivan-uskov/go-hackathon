@@ -8,20 +8,6 @@ import (
 const mockValidTaskType = "someType"
 const mockInvalidTaskType = "invalidTaskType"
 
-type mockScoringAdapter struct{}
-
-func (m mockScoringAdapter) AddTask(solutionID string, taskType string, endpoint string) error {
-	return nil
-}
-
-func (m mockScoringAdapter) RemoveTasks(solutionIDs []string) error {
-	return nil
-}
-
-func (m mockScoringAdapter) ValidateTaskType(taskType string) bool {
-	return taskType == mockValidTaskType
-}
-
 func TestAddHackathonWithEmptyName(t *testing.T) {
 	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{

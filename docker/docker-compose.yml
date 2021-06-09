@@ -13,6 +13,7 @@ services:
     depends_on:
       - hackathonservice_db
       - scoringhttpservice
+      - scoringgrpcservice
 
   hackathonservice_db:
     image: mysql:8.0
@@ -42,7 +43,6 @@ services:
       - ${SCORING_HTTP_PORT}:${SCORING_HTTP_PORT}
     depends_on:
       - scoringservice_db
-      - scoringgrpcservice
 
   scoringgrpcservice:
     container_name: scoringgrpcservice

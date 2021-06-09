@@ -61,6 +61,29 @@ func (pr *participantRepository) GetByName(name string) (*model.Participant, err
 	return nil, nil // not found
 }
 
+func (pr *participantRepository) GetByHackathonID(hackathonID uuid.UUID) ([]model.Participant, error) {
+	rows, err := pr.tx.Query(""+
+		getSelectParticipantSQL()+
+		"WHERE hp.hackathon_id = UUID_TO_BIN(?) ", hackathonID.String())
+
+	if err != nil {
+		return nil, infrastructure.InternalError(err)
+	}
+	defer infrastructure.CloseRows(rows)
+
+	var pp []model.Participant
+	for rows.Next() {
+		part, err := parseParticipant(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		pp = append(pp, *part)
+	}
+
+	return pp, nil // not found
+}
+
 func getSelectParticipantSQL() string {
 	return "" +
 		"SELECT " +

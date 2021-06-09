@@ -116,3 +116,32 @@ func (m *mockParticipantRepository) GetByName(name string) (*model.Participant, 
 
 	return nil, nil
 }
+
+func (m *mockParticipantRepository) GetByHackathonID(hackathonID uuid.UUID) ([]model.Participant, error) {
+	if m.participants == nil {
+		return nil, nil
+	}
+
+	var pp []model.Participant
+	for _, p := range m.participants {
+		if p.HackathonID == hackathonID {
+			pp = append(pp, p)
+		}
+	}
+
+	return pp, nil
+}
+
+type mockScoringAdapter struct{}
+
+func (m mockScoringAdapter) AddTask(_ string, _ string, _ string) error {
+	return nil
+}
+
+func (m mockScoringAdapter) RemoveTasks(_ []string) error {
+	return nil
+}
+
+func (m mockScoringAdapter) ValidateTaskType(taskType string) bool {
+	return taskType == mockValidTaskType
+}
