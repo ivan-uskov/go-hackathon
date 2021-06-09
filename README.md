@@ -21,6 +21,12 @@ make build
 make up
 ```
 
+### Выполнение миграций
+```
+make hackathon_migrates
+make scoring_migrates
+```
+
 ### Запуск api тестов
 ```
 make api_tests
