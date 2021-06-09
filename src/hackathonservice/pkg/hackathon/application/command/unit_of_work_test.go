@@ -8,7 +8,6 @@ import (
 
 var mockHackathon = model.Hackathon{
 	ID:        uuid.New(),
-	Code:      "MockHackathon",
 	Name:      "MockHackathon",
 	Type:      "test_type",
 	CreatedAt: time.Now(),
@@ -68,13 +67,13 @@ func (m *mockHackathonRepository) Get(id uuid.UUID) (*model.Hackathon, error) {
 	return &s, nil
 }
 
-func (m *mockHackathonRepository) GetByCode(code string) (*model.Hackathon, error) {
+func (m *mockHackathonRepository) GetByName(name string) (*model.Hackathon, error) {
 	if m.hackathons == nil {
 		return nil, nil
 	}
 
 	for _, h := range m.hackathons {
-		if h.Code == code {
+		if h.Name == name {
 			return &h, nil
 		}
 	}

@@ -9,7 +9,6 @@ import (
 )
 
 type AddHackathonCommand struct {
-	Code string
 	Name string
 	Type string
 }
@@ -32,9 +31,6 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
 		repo := rp.HackathonRepository()
 
-		if c.Code == "" {
-			return errors.InvalidHackathonCodeError
-		}
 		if c.Name == "" {
 			return errors.InvalidHackathonNameError
 		}
@@ -43,7 +39,7 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 			return errors.InvalidHackathonTypeError
 		}
 
-		s, err := repo.GetByCode(c.Code)
+		s, err := repo.GetByName(c.Name)
 		if err != nil {
 			return err
 		}
@@ -55,7 +51,6 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 		hackathonId = &id
 		return repo.Add(model.Hackathon{
 			ID:        id,
-			Code:      c.Code,
 			Name:      c.Name,
 			Type:      c.Type,
 			CreatedAt: time.Now(),

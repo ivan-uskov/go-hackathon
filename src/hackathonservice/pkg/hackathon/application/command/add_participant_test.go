@@ -13,28 +13,11 @@ func TestAddParticipantToNotExistentHackathon(t *testing.T) {
 	h := addParticipantCommandHandler{uow}
 	err := h.Handle(AddParticipantCommand{
 		uuid.New(),
-		"Test hackathon",
 		mockParticipant.Name,
 		mockParticipant.Endpoint,
 	})
 	if err != errors.HackathonNotExistsError {
 		t.Error("Add participant to not exists hackathon works")
-	}
-}
-
-func TestAddParticipantWithInvalidHackathonCode(t *testing.T) {
-	uow := &mockUnitOfWork{}
-	_ = uow.mockHackathonRepository.Add(mockHackathon)
-
-	h := addParticipantCommandHandler{uow}
-	err := h.Handle(AddParticipantCommand{
-		mockHackathon.ID,
-		"Test hackathon",
-		mockParticipant.Name,
-		mockParticipant.Endpoint,
-	})
-	if err != errors.InvalidHackathonCodeError {
-		t.Error("Add participant to hackathon with invalid code works")
 	}
 }
 
@@ -47,7 +30,6 @@ func TestAddParticipantToClosedHackathon(t *testing.T) {
 	h := addParticipantCommandHandler{uow}
 	err := h.Handle(AddParticipantCommand{
 		hackathon.ID,
-		hackathon.Code,
 		mockParticipant.Name,
 		mockParticipant.Endpoint,
 	})
@@ -63,7 +45,6 @@ func TestAddParticipantWithEmptyName(t *testing.T) {
 	h := addParticipantCommandHandler{uow}
 	err := h.Handle(AddParticipantCommand{
 		mockHackathon.ID,
-		mockHackathon.Code,
 		"",
 		mockParticipant.Endpoint,
 	})
@@ -79,7 +60,6 @@ func TestAddParticipantWithEmptyEndpoint(t *testing.T) {
 	h := addParticipantCommandHandler{uow}
 	err := h.Handle(AddParticipantCommand{
 		mockHackathon.ID,
-		mockHackathon.Code,
 		mockParticipant.Name,
 		"",
 	})
@@ -95,7 +75,6 @@ func TestAddDuplicateParticipant(t *testing.T) {
 	h := addParticipantCommandHandler{uow}
 	err := h.Handle(AddParticipantCommand{
 		mockHackathon.ID,
-		mockHackathon.Code,
 		mockParticipant.Name,
 		mockParticipant.Endpoint,
 	})
@@ -104,7 +83,6 @@ func TestAddDuplicateParticipant(t *testing.T) {
 	}
 	err = h.Handle(AddParticipantCommand{
 		mockHackathon.ID,
-		mockHackathon.Code,
 		mockParticipant.Name,
 		mockParticipant.Endpoint,
 	})

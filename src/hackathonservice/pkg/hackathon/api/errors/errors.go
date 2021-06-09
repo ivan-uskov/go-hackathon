@@ -16,7 +16,6 @@ var HackathonNotExistsError = errors.New("hackathon: hackathon not exists")
 var HackathonAlreadyExistsError = errors.New("hackathon: hackathon already exists")
 var HackathonClosedError = errors.New("hackathon: hackathon closed")
 var HackathonAlreadyClosedError = errors.New("hackathon: hackathon already closed")
-var InvalidHackathonCodeError = errors.New("hackathon: invalid hackathon code")
 var InvalidHackathonNameError = errors.New("hackathon: invalid hackathon name")
 var InvalidHackathonTypeError = errors.New("hackathon: invalid hackathon type")
 var InternalError = commonErrors.InternalError
@@ -41,8 +40,6 @@ func WrapError(err error) error {
 		return HackathonClosedError
 	case appErrors.HackathonAlreadyClosedError:
 		return HackathonAlreadyClosedError
-	case appErrors.InvalidHackathonCodeError:
-		return InvalidHackathonCodeError
 	case appErrors.InvalidHackathonNameError:
 		return InvalidHackathonNameError
 	case appErrors.InvalidHackathonTypeError:

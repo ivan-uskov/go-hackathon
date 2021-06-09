@@ -15,10 +15,10 @@ type hackathonRepository struct {
 
 func (hr *hackathonRepository) Add(h model.Hackathon) error {
 	_, err := hr.tx.Exec(
-		"INSERT INTO `hackathon` (`hackathon_id`, `code`, `name`, `type`, `created_at`) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)"+
-			"ON DUPLICATE KEY UPDATE `code` = ?, `name` = ?, `type` = ?, `created_at` = ?, `closed_at` = ?",
-		h.ID, h.Code, h.Name, h.Type, h.CreatedAt,
-		h.Code, h.Name, h.Type, h.CreatedAt, h.ClosedAt)
+		"INSERT INTO `hackathon` (`hackathon_id`, `name`, `type`, `created_at`) VALUES (UUID_TO_BIN(?), ?, ?, ?)"+
+			"ON DUPLICATE KEY UPDATE `name` = ?, `type` = ?, `created_at` = ?, `closed_at` = ?",
+		h.ID, h.Name, h.Type, h.CreatedAt,
+		h.Name, h.Type, h.CreatedAt, h.ClosedAt)
 
 	if err != nil {
 		err = infrastructure.InternalError(err)
@@ -30,7 +30,7 @@ func (hr *hackathonRepository) Add(h model.Hackathon) error {
 func (hr *hackathonRepository) Get(id uuid.UUID) (*model.Hackathon, error) {
 	rows, err := hr.tx.Query(""+
 		getSelectHackathonSQL()+
-		"WHERE BIN_TO_UUID(h.hackathon_id) = ? ", id)
+		"WHERE h.hackathon_id = UUID_TO_BIN(?) ", id)
 
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
@@ -44,10 +44,10 @@ func (hr *hackathonRepository) Get(id uuid.UUID) (*model.Hackathon, error) {
 	return nil, nil // not found
 }
 
-func (hr *hackathonRepository) GetByCode(code string) (*model.Hackathon, error) {
+func (hr *hackathonRepository) GetByName(name string) (*model.Hackathon, error) {
 	rows, err := hr.tx.Query(""+
 		getSelectHackathonSQL()+
-		"WHERE h.code = ? ", code)
+		"WHERE h.name = ? ", name)
 
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
@@ -65,7 +65,6 @@ func getSelectHackathonSQL() string {
 	return "" +
 		"SELECT " +
 		"BIN_TO_UUID(h.hackathon_id) AS hackathon_id, " +
-		"h.code, " +
 		"h.name, " +
 		"h.type, " +
 		"h.created_at, " +
@@ -75,13 +74,12 @@ func getSelectHackathonSQL() string {
 
 func parseHackathon(r *sql.Rows) (*model.Hackathon, error) {
 	var hackathonId string
-	var code string
 	var name string
 	var t string
 	var createdAt time.Time
 	var closedAtNullable sql.NullTime
 
-	err := r.Scan(&hackathonId, &code, &name, &t, &createdAt, &closedAtNullable)
+	err := r.Scan(&hackathonId, &name, &t, &createdAt, &closedAtNullable)
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
@@ -93,7 +91,6 @@ func parseHackathon(r *sql.Rows) (*model.Hackathon, error) {
 
 	return &model.Hackathon{
 		ID:        hackathonUid,
-		Code:      code,
 		Name:      name,
 		Type:      t,
 		CreatedAt: createdAt,

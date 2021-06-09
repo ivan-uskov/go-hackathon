@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "743f1f44-aa51-453c-8869-042963045536",
+		"_postman_id": "8637c0a6-7d29-4160-91d1-a5d1a4359539",
 		"name": "hackathonservice",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -35,7 +35,7 @@
 						"exec": [
 							"let random = +new Date();",
 							"",
-							"pm.globals.set(\"lastCreatedHackathonCode\", `ispring-${random}`);"
+							"pm.globals.set(\"lastCreatedHackathonName\", `ispring-${random}`);"
 						],
 						"type": "text/javascript"
 					}
@@ -46,7 +46,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"iSpring code hackathon\",\n    \"type\": \"expressions\"\n}"
+					"raw": "{\n    \"name\": \"{{lastCreatedHackathonName}}\",\n    \"type\": \"expressions\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/hackathon",
@@ -94,7 +94,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"hackathon_code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
+					"raw": "{\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participant",
@@ -261,7 +261,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"hackathon_code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
+					"raw": "{\n    \"name\": \"{{randomName}}\",\n    \"endpoint\": \"http://127.0.0.1\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/hackathon/{{lastCreatedHackathonId}}/participant",
@@ -474,7 +474,7 @@
 						"exec": [
 							"let random = +new Date();",
 							"",
-							"pm.globals.set(\"lastCreatedHackathonCode\", `ispring-${random}`);"
+							"pm.globals.set(\"lastCreatedHackathonName\", `ispring-${random}`);"
 						],
 						"type": "text/javascript"
 					}
@@ -485,7 +485,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"code\": \"{{lastCreatedHackathonCode}}\",\n    \"name\": \"iSpring code hackathon\",\n    \"type\": \"expressions\"\n}"
+					"raw": "{\n    \"name\": \"{{lastCreatedHackathonName}}\",\n    \"type\": \"expressions\"\n}"
 				},
 				"url": {
 					"raw": "http://{{url}}/api/v1/hackathon",

@@ -40,9 +40,8 @@ service HackathonService {
 }
 
 message AddHackathonRequest {
-  string code = 1;
-  string name = 2;
-  string type = 3;
+  string name = 1;
+  string type = 2;
 }
 
 message AddHackathonResponse {
@@ -55,7 +54,6 @@ message CloseHackathonRequest {
 
 message AddHackathonParticipantRequest {
   string id = 1;
-  string hackathon_code = 2;
   string endpoint = 3;
   string name = 4;
 }

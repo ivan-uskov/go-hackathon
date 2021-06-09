@@ -9,7 +9,6 @@ import (
 
 func (s *server) AddHackathon(_ context.Context, request *hackathon.AddHackathonRequest) (*hackathon.AddHackathonResponse, error) {
 	id, err := s.api.AddHackathon(input.AddHackathonInput{
-		Code: request.Code,
 		Name: request.Name,
 		Type: request.Type,
 	})
@@ -32,10 +31,9 @@ func (s *server) CloseHackathon(_ context.Context, request *hackathon.CloseHacka
 
 func (s *server) AddHackathonParticipant(_ context.Context, request *hackathon.AddHackathonParticipantRequest) (*empty.Empty, error) {
 	err := s.api.AddHackathonParticipant(input.AddHackathonParticipantInput{
-		HackathonID:   request.Id,
-		HackathonCode: request.HackathonCode,
-		Name:          request.Name,
-		Endpoint:      request.Endpoint,
+		HackathonID: request.Id,
+		Name:        request.Name,
+		Endpoint:    request.Endpoint,
 	})
 
 	if err != nil {

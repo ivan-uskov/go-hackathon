@@ -7,10 +7,9 @@ import (
 )
 
 type AddHackathonParticipantInput struct {
-	HackathonID   string
-	HackathonCode string
-	Name          string
-	Endpoint      string
+	HackathonID string
+	Name        string
+	Endpoint    string
 }
 
 func (i AddHackathonParticipantInput) Command() (*command.AddParticipantCommand, error) {
@@ -20,9 +19,8 @@ func (i AddHackathonParticipantInput) Command() (*command.AddParticipantCommand,
 	}
 
 	return &command.AddParticipantCommand{
-		HackathonID:   hackathonID,
-		HackathonCode: i.HackathonCode,
-		Name:          i.Name,
-		Endpoint:      i.Endpoint,
+		HackathonID: hackathonID,
+		Name:        i.Name,
+		Endpoint:    i.Endpoint,
 	}, nil
 }

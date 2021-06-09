@@ -22,22 +22,9 @@ func (m mockScoringAdapter) ValidateTaskType(taskType string) bool {
 	return taskType == mockValidTaskType
 }
 
-func TestAddHackathonWithEmptyCode(t *testing.T) {
-	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
-	_, err := h.Handle(AddHackathonCommand{
-		"",
-		mockHackathon.Name,
-		mockValidTaskType,
-	})
-	if err != errors.InvalidHackathonCodeError {
-		t.Error("Add hackathon with empty code works")
-	}
-}
-
 func TestAddHackathonWithEmptyName(t *testing.T) {
 	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
-		mockHackathon.Code,
 		"",
 		mockValidTaskType,
 	})
@@ -49,7 +36,6 @@ func TestAddHackathonWithEmptyName(t *testing.T) {
 func TestAddHackathonWithInvalidTaskType(t *testing.T) {
 	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
-		mockHackathon.Code,
 		mockHackathon.Name,
 		mockInvalidTaskType,
 	})
@@ -61,7 +47,6 @@ func TestAddHackathonWithInvalidTaskType(t *testing.T) {
 func TestAddDuplicateHackathon(t *testing.T) {
 	h := addHackathonCommandHandler{&mockUnitOfWork{}, &mockScoringAdapter{}}
 	_, err := h.Handle(AddHackathonCommand{
-		mockHackathon.Code,
 		mockHackathon.Name,
 		mockValidTaskType,
 	})
@@ -69,7 +54,6 @@ func TestAddDuplicateHackathon(t *testing.T) {
 		t.Error("Add hackathon not works")
 	}
 	_, err = h.Handle(AddHackathonCommand{
-		mockHackathon.Code,
 		mockHackathon.Name,
 		mockValidTaskType,
 	})

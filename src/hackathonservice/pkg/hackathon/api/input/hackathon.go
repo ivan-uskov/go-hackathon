@@ -7,14 +7,12 @@ import (
 )
 
 type AddHackathonInput struct {
-	Code string
 	Name string
 	Type string
 }
 
 func (i AddHackathonInput) Command() command.AddHackathonCommand {
 	return command.AddHackathonCommand{
-		Code: i.Code,
 		Name: i.Name,
 		Type: i.Type,
 	}

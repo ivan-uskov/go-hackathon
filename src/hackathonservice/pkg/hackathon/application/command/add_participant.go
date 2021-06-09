@@ -8,10 +8,9 @@ import (
 )
 
 type AddParticipantCommand struct {
-	HackathonID   uuid.UUID
-	HackathonCode string
-	Name          string
-	Endpoint      string
+	HackathonID uuid.UUID
+	Name        string
+	Endpoint    string
 }
 
 type addParticipantCommandHandler struct {
@@ -38,10 +37,6 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 
 		if hackathon == nil {
 			return errors.HackathonNotExistsError
-		}
-
-		if hackathon.Code != command.HackathonCode {
-			return errors.InvalidHackathonCodeError
 		}
 
 		if hackathon.IsClosed() {
