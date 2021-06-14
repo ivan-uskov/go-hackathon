@@ -2,9 +2,12 @@ package api
 
 import (
 	"database/sql"
+	expressions "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/errors"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/input"
+	"go-hackathon/src/scoringservice/pkg/scoringtask/application/adapter"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/application/command"
+	adapterImpl "go-hackathon/src/scoringservice/pkg/scoringtask/infrastructure/adapter"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/infrastructure/repository"
 )
 
@@ -16,11 +19,15 @@ type Api interface {
 }
 
 type api struct {
-	unitOfWork command.UnitOfWork
+	unitOfWork    command.UnitOfWork
+	scorerFactory adapter.ScorerFactory
 }
 
-func NewApi(db *sql.DB) Api {
-	return &api{repository.NewUnitOfWork(db)}
+func NewApi(db *sql.DB, expressionsApi expressions.Api) Api {
+	return &api{
+		repository.NewUnitOfWork(db),
+		adapterImpl.NewScorerFactory(expressionsApi),
+	}
 }
 
 func (a *api) AddTask(in input.AddScoringTaskInput) error {
@@ -44,5 +51,6 @@ func (a *api) RemoveTasks(in input.RemoveScoringTasksInput) error {
 }
 
 func (a *api) ScoreOnce() error {
-	return nil
+	h := command.NewScoreOnceCommandHandler(a.unitOfWork, a.scorerFactory)
+	return errors.WrapError(h.Handle())
 }

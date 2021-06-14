@@ -57,3 +57,18 @@ func (m *mockUnitOfWork) GetBySolutionID(id uuid.UUID) (*model.ScoringTask, erro
 
 	return nil, nil
 }
+
+func (m *mockUnitOfWork) GetFirstScoringTaskBefore(time time.Time) (*model.ScoringTask, error) {
+	if m.tasks == nil {
+		return nil, nil
+	}
+
+	var t *model.ScoringTask
+	for _, task := range m.tasks {
+		if task.DeletedAt == nil && (task.ScoredAt == nil || (time.After(*task.ScoredAt) && (t == nil || (t.ScoredAt != nil && t.ScoredAt.After(*task.ScoredAt))))) {
+			t = &task
+		}
+	}
+
+	return t, nil
+}

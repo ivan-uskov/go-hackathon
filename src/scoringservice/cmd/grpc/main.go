@@ -7,6 +7,7 @@ import (
 	scoring "go-hackathon/api/scoringservice"
 	"go-hackathon/src/common/cmd"
 	transportUtils "go-hackathon/src/common/cmd/transport"
+	expressionsApi "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/transport"
 	"google.golang.org/grpc"
@@ -42,7 +43,7 @@ func startServer(killSignalCh <-chan os.Signal, c config) {
 	grpcServer := grpc.NewServer()
 	defer grpcServer.GracefulStop()
 
-	scoring.RegisterScoringServiceServer(grpcServer, transport.Server(api.NewApi(db)))
+	scoring.RegisterScoringServiceServer(grpcServer, transport.Server(api.NewApi(db, expressionsApi.NewApi())))
 
 	go func() {
 		log.WithField("port", c.ServerPort).Info("starting the server")

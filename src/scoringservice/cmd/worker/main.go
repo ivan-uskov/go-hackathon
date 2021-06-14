@@ -7,6 +7,7 @@ import (
 	"go-hackathon/src/common/cmd"
 	"go-hackathon/src/common/cmd/supervisor"
 	transportUtils "go-hackathon/src/common/cmd/transport"
+	expressionsApi "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"os"
 )
@@ -35,7 +36,7 @@ func startWorker(killSignalChan <-chan os.Signal, c config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
 	defer transportUtils.CloseService(db, "database connection")
 
-	s := supervisor.StartSupervisor(api.NewApi(db).ScoreOnce, c.FailTimeoutSeconds)
+	s := supervisor.StartSupervisor(api.NewApi(db, expressionsApi.NewApi()).ScoreOnce, c.FailTimeoutSeconds)
 
 	cmd.WaitForKillSignal(killSignalChan)
 

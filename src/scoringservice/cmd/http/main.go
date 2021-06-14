@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/cmd"
 	transportUtils "go-hackathon/src/common/cmd/transport"
+	expressionsApi "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/transport"
 	"net/http"
@@ -37,7 +38,7 @@ func startServer(killSignalChan <-chan os.Signal, c config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
 	defer transportUtils.CloseService(db, "database connection")
 
-	router := transport.Router(context.Background(), api.NewApi(db))
+	router := transport.Router(context.Background(), api.NewApi(db, expressionsApi.NewApi()))
 	srv := &http.Server{Addr: fmt.Sprintf(":%d", c.ServerPort), Handler: router}
 
 	go func() {

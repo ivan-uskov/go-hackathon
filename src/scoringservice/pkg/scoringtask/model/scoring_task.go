@@ -19,7 +19,9 @@ type ScoringTask struct {
 type ScoringTaskRepository interface {
 	Add(task ScoringTask) error
 	Get(id uuid.UUID) (*ScoringTask, error)
+
 	GetBySolutionID(id uuid.UUID) (*ScoringTask, error)
+	GetFirstScoringTaskBefore(time time.Time) (*ScoringTask, error)
 }
 
 func (st *ScoringTask) UpdateScore(score int) {

@@ -61,6 +61,25 @@ func (s *scoringTaskRepository) GetBySolutionID(id uuid.UUID) (*model.ScoringTas
 	return nil, nil // not found
 }
 
+func (s *scoringTaskRepository) GetFirstScoringTaskBefore(time time.Time) (*model.ScoringTask, error) {
+	rows, err := s.tx.Query(""+
+		selectScoringTaskSql()+
+		"WHERE (scored_at IS NULL OR scored_at < ?) AND deleted_at IS NULL "+
+		"ORDER BY scored_at ASC "+
+		"LIMIT 1", time)
+
+	if err != nil {
+		return nil, infrastructure.InternalError(err)
+	}
+	defer infrastructure.CloseRows(rows)
+
+	if rows.Next() {
+		return parseScoringTask(rows)
+	}
+
+	return nil, nil // not found
+}
+
 func selectScoringTaskSql() string {
 	return "" +
 		"SELECT " +
