@@ -1,17 +1,19 @@
-package api
+package model
 
 import (
 	"fmt"
 	"math"
 )
 
-type expression struct {
-	expr   string
-	result float64
-	score  int
+type Expression struct {
+	Expr   string
+	Result float64
+	Score  int
 }
 
-var expressions = []expression{
+const HealthCheckScore = 5
+
+var expressions = []Expression{
 	//check "+", "-", spaces and more than two args
 	{"1", 1, 1},
 	{"2+2", 4, 1},
@@ -50,4 +52,8 @@ var expressions = []expression{
 	//check boundary values
 	{fmt.Sprintf("%v+%v-%v", math.MaxInt64, math.MaxInt64, math.MaxInt64), math.MaxInt64, 5},
 	{fmt.Sprintf("%v+%v-%v", math.MaxFloat64, math.MaxFloat64, math.MaxFloat64), math.MaxFloat64, 5},
+}
+
+func GetExpressions() []Expression {
+	return expressions
 }
