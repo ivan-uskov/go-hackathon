@@ -14,6 +14,7 @@ services:
       - hackathonservice_db
       - scoringhttpservice
       - scoringgrpcservice
+      - scoringworkerservice
 
   hackathonservice_db:
     image: mysql:8.0
@@ -53,6 +54,16 @@ services:
       - ../.env
     ports:
       - ${SCORING_GRPC_PORT}:${SCORING_GRPC_PORT}
+    depends_on:
+      - scoringservice_db
+
+  scoringworkerservice:
+    container_name: scoringworkerservice
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.scoringworkerservice
+    env_file:
+      - ../.env
     depends_on:
       - scoringservice_db
 

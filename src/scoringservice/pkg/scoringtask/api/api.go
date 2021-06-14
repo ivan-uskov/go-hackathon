@@ -11,6 +11,8 @@ import (
 type Api interface {
 	AddTask(input input.AddScoringTaskInput) error
 	RemoveTasks(input input.RemoveScoringTasksInput) error
+
+	ScoreOnce() error
 }
 
 type api struct {
@@ -39,4 +41,8 @@ func (a *api) RemoveTasks(in input.RemoveScoringTasksInput) error {
 
 	h := command.NewRemoveTasksCommandHandler(a.unitOfWork)
 	return errors.WrapError(h.Handle(*c))
+}
+
+func (a *api) ScoreOnce() error {
+	return nil
 }

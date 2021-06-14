@@ -11,6 +11,7 @@ import (
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/transport"
 	"net/http"
+	"os"
 )
 
 const appID = "scoring"
@@ -29,19 +30,15 @@ func main() {
 	cmd.SetupLogger()
 
 	killSignalChan := cmd.GetKillSignalChan()
-
-	ctx, stopServer := context.WithCancel(context.Background())
-	startServer(ctx, &c)
-
-	cmd.WaitForKillSignal(killSignalChan)
-	stopServer()
+	startServer(killSignalChan, c)
 }
 
-func startServer(ctx context.Context, c *config) {
+func startServer(killSignalChan <-chan os.Signal, c config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
-	router := transport.Router(ctx, api.NewApi(db))
+	defer transportUtils.CloseService(db, "database connection")
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%s", c.ServerPort), Handler: router}
+	router := transport.Router(context.Background(), api.NewApi(db))
+	srv := &http.Server{Addr: fmt.Sprintf(":%d", c.ServerPort), Handler: router}
 
 	go func() {
 		log.WithFields(log.Fields{"port": c.ServerPort}).Info("starting the server")
@@ -50,13 +47,10 @@ func startServer(ctx context.Context, c *config) {
 		}
 	}()
 
-	go func() {
-		<-ctx.Done()
-		log.Info("Shutting down the http gateway server")
-		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Errorf("Failed to shutdown http gateway server: %v", err)
-		}
+	cmd.WaitForKillSignal(killSignalChan)
 
-		transportUtils.CloseService(db, "database connection")
-	}()
+	log.Info("Shutting down the http gateway server")
+	if err := srv.Shutdown(context.Background()); err != nil {
+		log.Errorf("Failed to shutdown http gateway server: %v", err)
+	}
 }

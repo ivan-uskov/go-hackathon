@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
@@ -12,7 +10,7 @@ import (
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/transport"
 	"google.golang.org/grpc"
-	"net"
+	"os"
 )
 
 const appID = "scoring"
@@ -31,25 +29,20 @@ func main() {
 	cmd.SetupLogger()
 
 	killSignalChan := cmd.GetKillSignalChan()
-
-	ctx, stopServer := context.WithCancel(context.Background())
-	startServer(ctx, &c)
-
-	cmd.WaitForKillSignal(killSignalChan)
-	stopServer()
+	startServer(killSignalChan, c)
 }
 
-func startServer(ctx context.Context, c *config) {
-	l, err := net.Listen("tcp", fmt.Sprintf(":%v", c.ServerPort))
-	if err != nil {
-		log.Fatal(err)
-	}
+func startServer(killSignalCh <-chan os.Signal, c config) {
+	l := transportUtils.ListenTCP(c.ServerPort)
+	defer transportUtils.CloseService(l, "socket")
 
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
-	server := transport.Server(api.NewApi(db))
+	defer transportUtils.CloseService(db, "db connection")
 
 	grpcServer := grpc.NewServer()
-	scoring.RegisterScoringServiceServer(grpcServer, server)
+	defer grpcServer.GracefulStop()
+
+	scoring.RegisterScoringServiceServer(grpcServer, transport.Server(api.NewApi(db)))
 
 	go func() {
 		log.WithField("port", c.ServerPort).Info("starting the server")
@@ -58,10 +51,5 @@ func startServer(ctx context.Context, c *config) {
 		}
 	}()
 
-	go func() {
-		<-ctx.Done()
-		grpcServer.GracefulStop()
-		transportUtils.CloseService(db, "db connection")
-		transportUtils.CloseService(l, "socket")
-	}()
+	cmd.WaitForKillSignal(killSignalCh)
 }

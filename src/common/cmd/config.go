@@ -10,9 +10,9 @@ type DatabaseConfig struct {
 }
 
 type HTTPConfig struct {
-	ServerPort string `envconfig:"http_port"`
+	ServerPort int `envconfig:"http_port"`
 }
 
 type GRPCConfig struct {
-	ServerPort string `envconfig:"grpc_port"`
+	ServerPort int `envconfig:"grpc_port"`
 }
