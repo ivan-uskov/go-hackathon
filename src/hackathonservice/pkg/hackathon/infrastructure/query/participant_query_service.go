@@ -32,7 +32,7 @@ func (qs *participantQueryService) GetParticipants(hackathonID string) ([]data.P
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	return parseParticipants(rows)
 }

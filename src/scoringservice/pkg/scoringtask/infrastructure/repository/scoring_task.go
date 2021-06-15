@@ -35,7 +35,7 @@ func (s *scoringTaskRepository) Get(id uuid.UUID) (*model.ScoringTask, error) {
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseScoringTask(rows)
@@ -52,7 +52,7 @@ func (s *scoringTaskRepository) GetBySolutionID(id uuid.UUID) (*model.ScoringTas
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseScoringTask(rows)
@@ -71,7 +71,7 @@ func (s *scoringTaskRepository) GetFirstScoringTaskBefore(time time.Time) (*mode
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseScoringTask(rows)

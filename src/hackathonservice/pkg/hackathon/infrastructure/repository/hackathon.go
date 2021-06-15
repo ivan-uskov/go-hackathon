@@ -35,7 +35,7 @@ func (hr *hackathonRepository) Get(id uuid.UUID) (*model.Hackathon, error) {
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseHackathon(rows)
@@ -52,7 +52,7 @@ func (hr *hackathonRepository) GetByName(name string) (*model.Hackathon, error) 
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseHackathon(rows)

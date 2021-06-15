@@ -5,9 +5,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/application/errors"
+	"go-hackathon/src/common/infrastructure"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -35,16 +35,7 @@ func Parameter(r *http.Request, key string) (string, bool) {
 
 func CloseService(closer io.Closer, subject ...string) {
 	log.Infof("Close %v", subject)
-	Close(closer, subject...)
-}
-
-func Close(closer io.Closer, subject ...string) {
-	subjectStr := strings.Join(subject, "")
-
-	err := closer.Close()
-	if err != nil {
-		log.Errorf("Failed to close %v: %v", subjectStr, err)
-	}
+	infrastructure.Close(closer, subject...)
 }
 
 func TimeToString(t *time.Time) string {

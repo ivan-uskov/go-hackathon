@@ -35,7 +35,7 @@ func (pr *participantRepository) Get(id uuid.UUID) (*model.Participant, error) {
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseParticipant(rows)
@@ -52,7 +52,7 @@ func (pr *participantRepository) GetByName(name string) (*model.Participant, err
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		return parseParticipant(rows)
@@ -69,7 +69,7 @@ func (pr *participantRepository) GetByHackathonID(hackathonID uuid.UUID) ([]mode
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	var pp []model.Participant
 	for rows.Next() {

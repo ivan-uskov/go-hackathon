@@ -7,7 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/cmd"
-	transportUtils "go-hackathon/src/common/cmd/transport"
+	transportUtils "go-hackathon/src/common/infrastructure/transport"
 	expressionsApi "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/transport"

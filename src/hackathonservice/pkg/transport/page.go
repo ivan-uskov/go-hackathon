@@ -3,7 +3,7 @@ package transport
 import (
 	"fmt"
 	"go-hackathon/src/common/application/errors"
-	"go-hackathon/src/common/cmd/transport"
+	"go-hackathon/src/common/infrastructure/transport"
 	"net/http"
 	"text/template"
 )

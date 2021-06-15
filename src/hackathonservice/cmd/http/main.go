@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	scoring "go-hackathon/api/scoringservice"
 	"go-hackathon/src/common/cmd"
-	transportUtils "go-hackathon/src/common/cmd/transport"
+	transportUtils "go-hackathon/src/common/infrastructure/transport"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api"
 	"go-hackathon/src/hackathonservice/pkg/transport"
 	"net/http"

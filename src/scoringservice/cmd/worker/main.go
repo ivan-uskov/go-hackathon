@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/src/common/cmd"
 	"go-hackathon/src/common/cmd/supervisor"
-	transportUtils "go-hackathon/src/common/cmd/transport"
+	"go-hackathon/src/common/infrastructure/transport"
 	expressionsApi "go-hackathon/src/scoringservice/pkg/expressions/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"os"
@@ -34,7 +34,7 @@ func main() {
 
 func startWorker(killSignalChan <-chan os.Signal, c config) {
 	db := cmd.CreateDBConnection(c.DatabaseConfig)
-	defer transportUtils.CloseService(db, "database connection")
+	defer transport.CloseService(db, "database connection")
 
 	s := supervisor.StartSupervisor(api.NewApi(db, expressionsApi.NewApi()).ScoreOnce, c.FailTimeoutSeconds)
 

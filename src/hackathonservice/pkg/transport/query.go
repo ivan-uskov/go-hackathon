@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
 	hackathon "go-hackathon/api/hackathonservice"
-	"go-hackathon/src/common/cmd/transport"
+	"go-hackathon/src/common/infrastructure/transport"
 )
 
 func (s *server) GetHackathons(_ context.Context, _ *empty.Empty) (*hackathon.HackathonsResponse, error) {

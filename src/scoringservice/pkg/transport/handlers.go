@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go-hackathon/api/scoringservice"
 	"go-hackathon/src/common/cmd"
-	"go-hackathon/src/common/cmd/transport"
+	"go-hackathon/src/common/infrastructure/transport"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/api/input"
 	"net/http"

@@ -3,7 +3,7 @@ package adapter
 import (
 	"bytes"
 	"errors"
-	"go-hackathon/src/common/cmd/transport"
+	"go-hackathon/src/common/infrastructure"
 	"go-hackathon/src/scoringservice/pkg/expressions/application/adapter"
 	"io/ioutil"
 	"net/http"
@@ -40,7 +40,7 @@ func (e *externalServiceAdapter) Calculate(expr string) (float64, error) {
 		return 0, errors.New("status code is not 200")
 	}
 
-	defer transport.Close(r.Body)
+	defer infrastructure.Close(r.Body)
 	clientRes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return 0, err

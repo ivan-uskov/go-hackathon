@@ -25,7 +25,7 @@ func (qs *hackatonQueryService) GetHackathons() ([]data.HackathonData, error) {
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	hackathons := make([]data.HackathonData, 0)
 	for rows.Next() {
@@ -49,7 +49,7 @@ func (qs *hackatonQueryService) GetHackathon(id string) (*data.HackathonData, er
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
 	}
-	defer infrastructure.CloseRows(rows)
+	defer infrastructure.Close(rows)
 
 	if rows.Next() {
 		hackathon, err := parseHackathon(rows)
