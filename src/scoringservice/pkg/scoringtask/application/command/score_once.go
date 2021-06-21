@@ -35,6 +35,15 @@ func (s *scoreOnceCommandHandler) Handle() error {
 		return errors.TaskNotExistError
 	}
 
+	err = s.updateScore(task)
+	if err != nil {
+		return err
+	}
+
+	return s.saveTask(*task)
+}
+
+func (s *scoreOnceCommandHandler) updateScore(task *model.ScoringTask) error {
 	scorer, err := s.factory.GetScorer(task.Type)
 	if err != nil {
 		return err
@@ -42,8 +51,12 @@ func (s *scoreOnceCommandHandler) Handle() error {
 
 	task.UpdateScore(scorer.Score(task.Endpoint))
 
+	return nil
+}
+
+func (s *scoreOnceCommandHandler) saveTask(task model.ScoringTask) error {
 	return s.uow.Execute(func(rp RepositoryProvider) error {
-		err := rp.ScoringTaskRepository().Add(*task)
+		err := rp.ScoringTaskRepository().Add(task)
 		if err != nil {
 			return err
 		}
