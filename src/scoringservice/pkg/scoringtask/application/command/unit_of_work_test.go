@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/google/uuid"
+	"go-hackathon/src/common/application/events"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/model"
 	"time"
 )
@@ -14,12 +15,26 @@ var mockScoringTask = model.ScoringTask{
 	CreatedAt:  time.Now(),
 }
 
+type mockEventStore struct{}
+
+func (m *mockEventStore) Add(_ events.Event) error {
+	return nil
+}
+
 type mockUnitOfWork struct {
 	tasks map[string]model.ScoringTask
 }
 
-func (m *mockUnitOfWork) Execute(f func(r model.ScoringTaskRepository) error) error {
+func (m *mockUnitOfWork) Execute(f func(r RepositoryProvider) error) error {
 	return f(m)
+}
+
+func (m *mockUnitOfWork) ScoringTaskRepository() model.ScoringTaskRepository {
+	return m
+}
+
+func (m *mockUnitOfWork) EventStore() events.EventStore {
+	return &mockEventStore{}
 }
 
 func (m *mockUnitOfWork) Add(task model.ScoringTask) error {

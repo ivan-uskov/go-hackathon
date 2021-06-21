@@ -24,8 +24,8 @@ func NewScoreOnceCommandHandler(uow UnitOfWork, factory adapter.ScorerFactory) S
 
 func (s *scoreOnceCommandHandler) Handle() error {
 	var task *model.ScoringTask
-	err := s.uow.Execute(func(r model.ScoringTaskRepository) (err error) {
-		task, err = r.GetFirstScoringTaskBefore(time.Now().Add(-scoreTimeout))
+	err := s.uow.Execute(func(rp RepositoryProvider) (err error) {
+		task, err = rp.ScoringTaskRepository().GetFirstScoringTaskBefore(time.Now().Add(-scoreTimeout))
 		return err
 	})
 	if err != nil {
@@ -42,7 +42,16 @@ func (s *scoreOnceCommandHandler) Handle() error {
 
 	task.UpdateScore(scorer.Score(task.Endpoint))
 
-	return s.uow.Execute(func(r model.ScoringTaskRepository) error {
-		return r.Add(*task)
+	return s.uow.Execute(func(rp RepositoryProvider) error {
+		err := rp.ScoringTaskRepository().Add(*task)
+		if err != nil {
+			return err
+		}
+
+		return rp.EventStore().Add(&model.ScoringCompleteEvent{
+			SolutionID: task.SolutionID,
+			Score:      task.Score,
+			ScoredAt:   *task.ScoredAt,
+		})
 	})
 }

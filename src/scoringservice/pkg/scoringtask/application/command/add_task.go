@@ -26,7 +26,8 @@ func NewAddTaskCommandHandler(uow UnitOfWork) AddTaskCommandHandler {
 }
 
 func (h *addTaskCommandHandler) Handle(command AddTaskCommand) error {
-	return h.uow.Execute(func(r model.ScoringTaskRepository) error {
+	return h.uow.Execute(func(rp RepositoryProvider) error {
+		r := rp.ScoringTaskRepository()
 		task, err := r.GetBySolutionID(command.SolutionID)
 		if err != nil {
 			return err

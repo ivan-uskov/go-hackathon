@@ -3,7 +3,6 @@ package command
 import (
 	"github.com/google/uuid"
 	"go-hackathon/src/scoringservice/pkg/scoringtask/application/errors"
-	"go-hackathon/src/scoringservice/pkg/scoringtask/model"
 )
 
 type RemoveTasksCommand struct {
@@ -23,7 +22,9 @@ func NewRemoveTasksCommandHandler(uow UnitOfWork) RemoveTasksCommandHandler {
 }
 
 func (h *removeTasksCommandHandler) Handle(command RemoveTasksCommand) error {
-	return h.uow.Execute(func(r model.ScoringTaskRepository) error {
+	return h.uow.Execute(func(rp RepositoryProvider) error {
+		r := rp.ScoringTaskRepository()
+
 		for _, solutionId := range command.SolutionIDs {
 			task, err := r.GetBySolutionID(solutionId)
 			if err != nil {
