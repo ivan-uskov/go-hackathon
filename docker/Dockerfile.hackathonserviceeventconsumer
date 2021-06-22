@@ -1,0 +1,33 @@
+# -------- modules --------
+FROM golang:1.16 AS modules
+
+COPY ./go.mod ./go.sum /
+RUN go mod download
+
+# -------- build binary --------
+FROM golang:1.16 AS builder
+
+RUN useradd -u 1001 appuser
+
+COPY --from=modules /go/pkg /go/pkg
+COPY . /build
+WORKDIR /build
+
+RUN GOARCH=amd64 GOOS=linux CGO_ENABLED=0 \
+    go build -o ./bin/hackathonserviceeventconsumer ./src/hackathonservice/cmd/eventconsumer
+
+RUN chmod +x ./bin/hackathonserviceeventconsumer
+
+# -------- build image --------
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+COPY --from=builder /etc/passwd /etc/passwd
+USER appuser
+
+COPY --from=builder /build/bin/hackathonserviceeventconsumer /app/bin/hackathonserviceeventconsumer
+
+WORKDIR /app
+
+CMD ["/app/bin/hackathonserviceeventconsumer"]

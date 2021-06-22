@@ -37,8 +37,18 @@ func NewEventStore(tx *sql.Tx) events.EventStore {
 	return &eventStore{tx}
 }
 
+type eventMessage struct {
+	Type    string
+	Payload string
+}
+
 func (s *eventStore) Add(e events.Event) error {
 	b, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	messageBytes, err := json.Marshal(eventMessage{e.GetType(), string(b)})
 	if err != nil {
 		return err
 	}
@@ -46,7 +56,7 @@ func (s *eventStore) Add(e events.Event) error {
 	return s.Store(eventsModel.StoredEvent{
 		ID:        uuid.New(),
 		Type:      e.GetType(),
-		Body:      string(b),
+		Body:      string(messageBytes),
 		CreatedAt: time.Now(),
 	})
 }

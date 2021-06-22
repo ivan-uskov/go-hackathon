@@ -22,6 +22,8 @@ type Api interface {
 	AddHackathon(in input.AddHackathonInput) (*uuid.UUID, error)
 	CloseHackathon(in input.CloseHackathonInput) error
 	AddHackathonParticipant(in input.AddHackathonParticipantInput) error
+
+	ProcessEvent(e string) error
 }
 
 type api struct {

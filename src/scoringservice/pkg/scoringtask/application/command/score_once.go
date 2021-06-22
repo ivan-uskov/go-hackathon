@@ -73,7 +73,6 @@ func (s *scoreOnceCommandHandler) saveTask(task model.ScoringTask) error {
 		return rp.EventStore().Add(&model.ScoringCompleteEvent{
 			SolutionID: task.SolutionID,
 			Score:      task.Score,
-			ScoredAt:   *task.ScoredAt,
 		})
 	})
 }

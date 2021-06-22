@@ -39,6 +39,17 @@ func NewProducer(c cmd.AMQPConfig) messaging.AMQPProducer {
 	return client
 }
 
+func NewConsumer(c cmd.AMQPConfig) messaging.AMQPConsumer {
+	client := newClient(c)
+
+	_, err := client.channel.QueueDeclare(client.queueName(), false, false, false, false, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
+}
+
 func newClient(c cmd.AMQPConfig) *rabbitMQClient {
 	conn, err := amqp.Dial(c.ServerUrl)
 	if err != nil {
@@ -60,6 +71,28 @@ func (r *rabbitMQClient) Close() {
 
 func (r *rabbitMQClient) Publish(msg string) error {
 	return r.channel.Publish(r.exchangeName(), r.routingName(), false, false, amqp.Publishing{ContentType: "text/json", Body: []byte(msg)})
+}
+
+func (r *rabbitMQClient) Consume(consumer func(msg string) error) {
+	messages, err := r.channel.Consume(r.queueName(), "", false, false, false, false, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for message := range messages {
+		err := consumer(string(message.Body))
+		if err == nil {
+			err = message.Ack(false)
+			if err != nil {
+				log.Error(err)
+			}
+		} else {
+			err = message.Nack(false, true)
+			if err != nil {
+				log.Error(err)
+			}
+		}
+	}
 }
 
 func (r *rabbitMQClient) queueName() string {

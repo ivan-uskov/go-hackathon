@@ -5,6 +5,7 @@ import (
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/errors"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/api/input"
 	"go-hackathon/src/hackathonservice/pkg/hackathon/application/command"
+	"go-hackathon/src/hackathonservice/pkg/hackathon/infrastructure/events"
 )
 
 func (a *api) AddHackathon(in input.AddHackathonInput) (*uuid.UUID, error) {
@@ -31,4 +32,17 @@ func (a *api) AddHackathonParticipant(in input.AddHackathonParticipantInput) err
 
 	h := command.NewAddParticipantCommandHandler(a.unitOfWork, a.scoring)
 	return errors.WrapError(h.Handle(*c))
+}
+
+func (a *api) ProcessEvent(e string) error {
+	handler, err := events.NewEventHandlerFactory(a.unitOfWork).Create(e)
+	if err != nil {
+		if err == events.EventHandlerNotExistError {
+			return nil
+		} else {
+			return err
+		}
+	}
+
+	return handler()
 }

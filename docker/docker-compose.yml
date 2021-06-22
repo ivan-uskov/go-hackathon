@@ -12,10 +12,23 @@ services:
       - ${HACKATHON_HTTP_PORT}:${HACKATHON_HTTP_PORT}
     depends_on:
       - hackathonservice_db
+      - hackathonserviceeventconsumer
       - scoringhttpservice
       - scoringgrpcservice
       - scoringworkerservice
       - scoringserviceeventsender
+
+  hackathonserviceeventconsumer:
+    container_name: hackathonserviceeventconsumer
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.hackathonserviceeventconsumer
+    env_file:
+      - ../.env
+    depends_on:
+      - hackathonservice_db
+      - message_broker
+    restart: always
 
   hackathonservice_db:
     image: mysql:8.0

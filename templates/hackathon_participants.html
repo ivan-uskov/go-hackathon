@@ -15,10 +15,6 @@
         <form class="mt-3 mb-5 w-25 float-end visually-hidden" id="addParticipantForm">
             <div>
                 <div class="mb-3">
-                    <label for="hackathonCode" class="form-label">Код хакатона</label>
-                    <input type="text" class="form-control" id="hackathonCode" placeholder="Code" required>
-                </div>
-                <div class="mb-3">
                     <label for="name" class="form-label">Ваше имя</label>
                     <input type="text" class="form-control" id="name" placeholder="Name" required>
                 </div>
@@ -64,6 +60,10 @@
             }
 
             updateTable(data) {
+                if (!data.length) {
+                    return
+                }
+
                 const sortedData = data.sort((left, right) => left['score'] > right['score'] ? -1 : 1);
 
                 let content = "";
@@ -98,7 +98,7 @@
             _load() {
                 return fetch(this.loadUrl)
                     .then(response => response.json())
-                    .then(data => this.loadHandler(data));
+                    .then(data => this.loadHandler(data.items));
             }
         }
 
@@ -114,7 +114,6 @@
                 this.addParticipantPreloader = document.getElementById('addParticipantPreloader');
                 this.addButton = document.getElementById('add');
                 this.cancelButton = document.getElementById('cancel');
-                this.hackathonCode = document.getElementById('hackathonCode');
                 this.endpoint = document.getElementById('endpoint');
                 this.name = document.getElementById('name');
 
@@ -137,12 +136,11 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({hackathon_code: this.hackathonCode.value, endpoint: this.endpoint.value, name: this.name.value})
-                })
-                    .then(r => {
-                        this._hidePreloader();
-                        this._onCancelClicked();
-                    });
+                    body: JSON.stringify({endpoint: this.endpoint.value, name: this.name.value})
+                }).then(r => {
+                    this._hidePreloader();
+                    this._onCancelClicked();
+                });
                 return false;
             }
 
