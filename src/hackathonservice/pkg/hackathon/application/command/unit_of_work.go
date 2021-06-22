@@ -9,6 +9,9 @@ type RepositoryProvider interface {
 	ParticipantRepository() model.ParticipantRepository
 }
 
+type Job func(rp RepositoryProvider) error
+
 type UnitOfWork interface {
-	Execute(func(rp RepositoryProvider) error) error
+	Execute(Job) error
+	WithLock(name string, job Job) Job
 }

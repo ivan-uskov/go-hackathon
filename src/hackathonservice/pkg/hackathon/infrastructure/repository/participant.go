@@ -44,10 +44,10 @@ func (pr *participantRepository) Get(id uuid.UUID) (*model.Participant, error) {
 	return nil, nil // not found
 }
 
-func (pr *participantRepository) GetByName(name string) (*model.Participant, error) {
+func (pr *participantRepository) GetByNameAndHackathonID(name string, hackathonID uuid.UUID) (*model.Participant, error) {
 	rows, err := pr.tx.Query(""+
 		getSelectParticipantSQL()+
-		"WHERE hp.name = ? ", name)
+		"WHERE hp.name = ? AND hp.hackathon_id = UUID_TO_BIN(?)", name, hackathonID)
 
 	if err != nil {
 		return nil, infrastructure.InternalError(err)
@@ -64,7 +64,7 @@ func (pr *participantRepository) GetByName(name string) (*model.Participant, err
 func (pr *participantRepository) GetByHackathonID(hackathonID uuid.UUID) ([]model.Participant, error) {
 	rows, err := pr.tx.Query(""+
 		getSelectParticipantSQL()+
-		"WHERE hp.hackathon_id = UUID_TO_BIN(?) ", hackathonID.String())
+		"WHERE hp.hackathon_id = UUID_TO_BIN(?)", hackathonID.String())
 
 	if err != nil {
 		return nil, infrastructure.InternalError(err)

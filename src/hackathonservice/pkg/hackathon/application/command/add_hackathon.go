@@ -27,17 +27,14 @@ func NewAddHackathonCommandHandler(unitOfWork UnitOfWork, scoring adapter.Scorin
 }
 
 func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, error) {
+	err := h.validateCommand(c)
+	if err != nil {
+		return nil, err
+	}
+
 	var hackathonId *uuid.UUID
-	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+	job := func(rp RepositoryProvider) error {
 		repo := rp.HackathonRepository()
-
-		if c.Name == "" {
-			return errors.InvalidHackathonNameError
-		}
-
-		if !h.scoring.ValidateTaskType(c.Type) {
-			return errors.InvalidHackathonTypeError
-		}
 
 		s, err := repo.GetByName(c.Name)
 		if err != nil {
@@ -55,7 +52,22 @@ func (h *addHackathonCommandHandler) Handle(c AddHackathonCommand) (*uuid.UUID, 
 			Type:      c.Type,
 			CreatedAt: time.Now(),
 		})
-	})
+	}
+
+	job = h.unitOfWork.WithLock(getHackathonNameLock(c.Name), job)
+	err = h.unitOfWork.Execute(job)
 
 	return hackathonId, err
+}
+
+func (h *addHackathonCommandHandler) validateCommand(command AddHackathonCommand) error {
+	if command.Name == "" {
+		return errors.InvalidHackathonNameError
+	}
+
+	if !h.scoring.ValidateTaskType(command.Type) {
+		return errors.InvalidHackathonTypeError
+	}
+
+	return nil
 }

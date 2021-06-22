@@ -33,8 +33,12 @@ type mockParticipantRepository struct {
 	participants map[string]model.Participant
 }
 
-func (m *mockUnitOfWork) Execute(job func(rp RepositoryProvider) error) error {
+func (m *mockUnitOfWork) Execute(job Job) error {
 	return job(m)
+}
+
+func (m *mockUnitOfWork) WithLock(_ string, job Job) Job {
+	return job
 }
 
 func (m *mockUnitOfWork) HackathonRepository() model.HackathonRepository {
@@ -103,13 +107,13 @@ func (m *mockParticipantRepository) Get(id uuid.UUID) (*model.Participant, error
 	return &p, nil
 }
 
-func (m *mockParticipantRepository) GetByName(name string) (*model.Participant, error) {
+func (m *mockParticipantRepository) GetByNameAndHackathonID(name string, hackathonID uuid.UUID) (*model.Participant, error) {
 	if m.participants == nil {
 		return nil, nil
 	}
 
 	for _, p := range m.participants {
-		if p.Name == name {
+		if p.Name == name && p.HackathonID == hackathonID {
 			return &p, nil
 		}
 	}

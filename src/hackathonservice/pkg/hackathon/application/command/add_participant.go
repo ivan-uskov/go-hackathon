@@ -28,9 +28,34 @@ func NewAddParticipantCommandHandler(unitOfWork UnitOfWork, scoring adapter.Scor
 }
 
 func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) error {
+	err := h.validateCommand(command)
+	if err != nil {
+		return err
+	}
+
+	hackathon, participant, err := h.addParticipant(command)
+	if err != nil {
+		return err
+	}
+
+	return h.scoring.AddTask(participant.ID.String(), hackathon.Type, participant.Endpoint)
+}
+
+func (h *addParticipantCommandHandler) validateCommand(command AddParticipantCommand) error {
+	if command.Name == "" {
+		return errors.ParticipantNameIsEmptyError
+	}
+	if command.Endpoint == "" {
+		return errors.ParticipantEndpointIsEmptyError
+	}
+
+	return nil
+}
+
+func (h *addParticipantCommandHandler) addParticipant(command AddParticipantCommand) (*model.Hackathon, *model.Participant, error) {
 	var hackathon *model.Hackathon
 	var participant *model.Participant
-	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+	job := func(rp RepositoryProvider) error {
 		hackRepo := rp.HackathonRepository()
 		partRepo := rp.ParticipantRepository()
 
@@ -48,14 +73,7 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 			return errors.HackathonClosedError
 		}
 
-		if command.Name == "" {
-			return errors.ParticipantNameIsEmptyError
-		}
-		if command.Endpoint == "" {
-			return errors.ParticipantEndpointIsEmptyError
-		}
-
-		participant, err = partRepo.GetByName(command.Name)
+		participant, err = partRepo.GetByNameAndHackathonID(command.Name, hackathon.ID)
 		if err != nil {
 			return err
 		}
@@ -71,13 +89,13 @@ func (h *addParticipantCommandHandler) Handle(command AddParticipantCommand) err
 		}
 
 		return partRepo.Add(*participant)
-	})
-
-	if err != nil {
-		return err
 	}
 
-	return h.scoring.AddTask(participant.ID.String(), hackathon.Type, participant.Endpoint)
+	job = h.unitOfWork.WithLock(getParticipantNameLock(command.Name), job)
+	job = h.unitOfWork.WithLock(getHackathonIDLock(command.HackathonID), job)
+	err := h.unitOfWork.Execute(job)
+
+	return hackathon, participant, err
 }
 
 func removeSlashFromEnd(endpoint string) string {

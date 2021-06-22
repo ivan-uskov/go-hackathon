@@ -25,12 +25,26 @@ func NewCloseHackathonCommandHandler(unitOfWork UnitOfWork, scoring adapter.Scor
 }
 
 func (h *closeHackathonCommandHandler) Handle(c CloseHackathonCommand) error {
+	participants, err := h.closeHackathon(c)
+	if err != nil {
+		return err
+	}
+
+	var participantIDs []string
+	for _, p := range participants {
+		participantIDs = append(participantIDs, p.ID.String())
+	}
+
+	return h.scoring.RemoveTasks(participantIDs)
+}
+
+func (h *closeHackathonCommandHandler) closeHackathon(command CloseHackathonCommand) ([]model.Participant, error) {
 	var participants []model.Participant
-	err := h.unitOfWork.Execute(func(rp RepositoryProvider) error {
+	job := func(rp RepositoryProvider) error {
 		repo := rp.HackathonRepository()
 		partRepo := rp.ParticipantRepository()
 
-		hackathon, err := repo.Get(c.HackathonID)
+		hackathon, err := repo.Get(command.HackathonID)
 		if err != nil {
 			return err
 		}
@@ -50,16 +64,10 @@ func (h *closeHackathonCommandHandler) Handle(c CloseHackathonCommand) error {
 		hackathon.Close()
 
 		return repo.Add(*hackathon)
-	})
-
-	if err != nil {
-		return err
 	}
 
-	var participantIDs []string
-	for _, p := range participants {
-		participantIDs = append(participantIDs, p.ID.String())
-	}
+	job = h.unitOfWork.WithLock(getHackathonIDLock(command.HackathonID), job)
+	err := h.unitOfWork.Execute(job)
 
-	return h.scoring.RemoveTasks(participantIDs)
+	return participants, err
 }
