@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-var grpcServeMuxOptions = &runtime.JSONPb{
+var serveMuxOptions = &runtime.JSONPb{
 	EmitDefaults: true,
 	OrigName:     true,
 }
 
 func NewServeMux() *runtime.ServeMux {
-	return runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, grpcServeMuxOptions))
+	return runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, serveMuxOptions))
 }
 
 func ProcessError(w http.ResponseWriter, e error) {
