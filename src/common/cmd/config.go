@@ -16,3 +16,9 @@ type HTTPConfig struct {
 type GRPCConfig struct {
 	ServerPort int `envconfig:"grpc_port"`
 }
+
+type AMQPConfig struct {
+	ServerUrl    string `envconfig:"amqp_server_url"`
+	QueueName    string `envconfig:"amqp_queue_name"`
+	ExchangeType string `envconfig:"amqp_exchange_type"`
+}

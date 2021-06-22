@@ -15,6 +15,7 @@ services:
       - scoringhttpservice
       - scoringgrpcservice
       - scoringworkerservice
+      - scoringserviceeventsender
 
   hackathonservice_db:
     image: mysql:8.0
@@ -66,6 +67,19 @@ services:
       - ../.env
     depends_on:
       - scoringservice_db
+    restart: always
+
+  scoringserviceeventsender:
+    container_name: scoringserviceeventsender
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.scoringserviceeventsender
+    env_file:
+      - ../.env
+    depends_on:
+      - scoringservice_db
+      - message_broker
+    restart: always
 
   scoringservice_db:
     image: mysql:8.0
@@ -83,3 +97,12 @@ services:
       - 3371:3306
     volumes:
       - ../../var/scoringservice/database:/var/lib/mysql
+
+  message_broker:
+    image: rabbitmq:3-management-alpine
+    container_name: message_broker
+    ports:
+      - 15672:15672
+    volumes:
+      - ../../var/hackathon_message_broker:/var/lib/rabbitmq
+    restart: always

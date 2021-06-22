@@ -15,4 +15,10 @@ type StoredEvent struct {
 
 type StoredEventRepository interface {
 	Store(e StoredEvent) error
+	GetNotPublishedEvents() ([]StoredEvent, error)
+}
+
+func (e *StoredEvent) Publish() {
+	now := time.Now()
+	e.PublishedAt = &now
 }

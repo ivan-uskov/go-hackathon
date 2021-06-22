@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const scoreTimeout = 5 * time.Second
+const scoreTimeout = 30 * time.Second
 
 type ScoreOnceCommandHandler interface {
 	Handle() error
