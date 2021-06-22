@@ -56,7 +56,16 @@ func (s *scoreOnceCommandHandler) updateScore(task *model.ScoringTask) error {
 
 func (s *scoreOnceCommandHandler) saveTask(task model.ScoringTask) error {
 	return s.uow.Execute(func(rp RepositoryProvider) error {
-		err := rp.ScoringTaskRepository().Add(task)
+		repo := rp.ScoringTaskRepository()
+		t, err := repo.Get(task.ID)
+		if err != nil {
+			return err
+		}
+		if t.IsDeleted() {
+			return errors.TaskNotExistError
+		}
+
+		err = repo.Add(task)
 		if err != nil {
 			return err
 		}

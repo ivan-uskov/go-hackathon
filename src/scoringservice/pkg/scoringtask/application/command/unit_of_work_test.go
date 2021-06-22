@@ -25,8 +25,12 @@ type mockUnitOfWork struct {
 	tasks map[string]model.ScoringTask
 }
 
-func (m *mockUnitOfWork) Execute(f func(r RepositoryProvider) error) error {
+func (m *mockUnitOfWork) Execute(f Job) error {
 	return f(m)
+}
+
+func (m *mockUnitOfWork) WithLock(_ string, job Job) Job {
+	return job
 }
 
 func (m *mockUnitOfWork) ScoringTaskRepository() model.ScoringTaskRepository {

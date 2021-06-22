@@ -26,7 +26,7 @@ func NewAddTaskCommandHandler(uow UnitOfWork) AddTaskCommandHandler {
 }
 
 func (h *addTaskCommandHandler) Handle(command AddTaskCommand) error {
-	return h.uow.Execute(func(rp RepositoryProvider) error {
+	job := func(rp RepositoryProvider) error {
 		r := rp.ScoringTaskRepository()
 		task, err := r.GetBySolutionID(command.SolutionID)
 		if err != nil {
@@ -48,5 +48,8 @@ func (h *addTaskCommandHandler) Handle(command AddTaskCommand) error {
 			Type:       command.TaskType,
 			CreatedAt:  time.Now(),
 		})
-	})
+	}
+
+	job = h.uow.WithLock(getSolutionIDLock(command.SolutionID), job)
+	return h.uow.Execute(job)
 }

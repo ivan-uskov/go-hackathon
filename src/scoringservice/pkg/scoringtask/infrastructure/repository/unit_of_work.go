@@ -17,10 +17,20 @@ func NewUnitOfWork(db *sql.DB) command.UnitOfWork {
 	return &unitOfWork{db: repository.Database{DB: db}}
 }
 
-func (u *unitOfWork) Execute(job func(rp command.RepositoryProvider) error) error {
+func (u *unitOfWork) Execute(job command.Job) error {
 	return u.db.Tx(func(tx *sql.Tx) error {
 		return job(&repositoryProvider{tx})
 	})
+}
+
+func (u *unitOfWork) WithLock(name string, job command.Job) command.Job {
+	return func(rp command.RepositoryProvider) error {
+		return u.db.Tx(func(tx *sql.Tx) error {
+			return u.db.Lock(name, func() error {
+				return job(&repositoryProvider{tx})
+			})
+		})
+	}
 }
 
 type repositoryProvider struct {
